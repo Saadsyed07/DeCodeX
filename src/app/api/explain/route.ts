@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import axios from "axios";
 
-const API_KEY = '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';
+const API_KEY ='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';
 const MODEL_ID = 'mistralai/mixtral-8x7b-instruct';
 
 export async function POST(req: Request) {
