@@ -23,6 +23,13 @@ export default function Home() {
       return;
     }
 
+    // Check for basic syntax errors before sending to API
+    const syntaxErrors = document.querySelectorAll('.monaco-editor .marker-error');
+    if (syntaxErrors.length > 0) {
+      setError("Please fix the syntax errors in your code before explaining");
+      return;
+    }
+
     setLoading(true);
     setError("");
     setExplanation("");

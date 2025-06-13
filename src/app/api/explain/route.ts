@@ -1,14 +1,10 @@
 import { NextResponse } from "next/server";
 import axios from "axios";
 
-<<<<<<< HEAD
 if (!process.env.OPENROUTER_API_KEY) {
   throw new Error("OPENROUTER_API_KEY is not set in environment variables");
 }
 
-=======
-const API_KEY ='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';
->>>>>>> 95182137fb81b7738aa6faaea5dfe30e95b7ac09
 const MODEL_ID = 'mistralai/mixtral-8x7b-instruct';
 
 export async function POST(req: Request) {
@@ -25,9 +21,19 @@ export async function POST(req: Request) {
     // Default values if not provided
     const outputLang = outputLanguage || 'english';
     const outputTone = tone || 'professional';
+    
+    // Check if code might be in the wrong language
+    const possibleWrongLanguage = detectWrongLanguage(code, language);
+    let correctionPrompt = '';
+    
+    if (possibleWrongLanguage) {
+      correctionPrompt = `
+NOTE: The submitted code appears to be written in ${possibleWrongLanguage} rather than ${language}. 
+Please correct this in your explanation and provide the equivalent code in ${language} if possible.`;
+    }
 
     const prompt = `You are an expert programmer and code tutor. 
-Explain the following code written in ${language} in a ${outputTone} tone and provide the explanation in ${outputLang}.
+Explain the following code written in ${language} in a ${outputTone} tone and provide the explanation in ${outputLang}.${correctionPrompt}
 
 **Instructions:**
 - Present the explanation as a hierarchy or flowchart using markdown.
@@ -38,6 +44,7 @@ Explain the following code written in ${language} in a ${outputTone} tone and pr
 - After the explanation, provide the code's output (if possible) for verification.
 - Maintain the specified tone (${outputTone}) throughout the explanation.
 - Ensure the explanation is culturally appropriate for ${outputLang} speakers.
+${possibleWrongLanguage ? '- Provide the corrected code in the requested language.' : ''}
 
 **Output Format:**
 - Use markdown syntax for the explanation.
@@ -69,7 +76,10 @@ ${code}
 
     const explanation = response.data.choices[0].message.content;
 
-    return NextResponse.json({ explanation });
+    return NextResponse.json({ 
+      explanation,
+      possibleWrongLanguage: possibleWrongLanguage || null 
+    });
   } catch (error) {
     console.error('Error explaining code:', error);
     
@@ -88,4 +98,96 @@ ${code}
       { status: 500 }
     );
   }
+}
+
+// Helper function to detect if code might be in a different language than specified
+function detectWrongLanguage(code: string, specifiedLanguage: string): string | null {
+  // Python indicators
+  const pythonIndicators = [
+    'def ', 'import ', 'from ', ' as ', ':\n', 'print(', 'if __name__ == "__main__":', 
+    'class ', '#!', 'elif ', 'else:', 'try:', 'except:', 'finally:'
+  ];
+  
+  // JavaScript indicators
+  const jsIndicators = [
+    'function ', 'const ', 'let ', 'var ', '=>', 'console.log(', 'document.', 'window.', 
+    'export ', 'import ', 'class ', 'extends ', 'return ', 'new ', 'this.'
+  ];
+  
+  // TypeScript indicators (in addition to JS)
+  const tsIndicators = [
+    ': string', ': number', ': boolean', ': any', ': void', 'interface ', 'type ', '<T>', 
+    'implements ', 'private ', 'public ', 'protected ', 'readonly ', 'namespace '
+  ];
+  
+  // Java indicators
+  const javaIndicators = [
+    'public class ', 'private ', 'protected ', 'void ', 'static ', 'extends ', 'implements ', 
+    'System.out.println(', 'import java.', 'public static void main(String[] args)', 'new '
+  ];
+  
+  // C++ indicators
+  const cppIndicators = [
+    '#include', 'using namespace', 'std::', 'cout <<', 'cin >>', 'int main()', 'void ', 
+    'class ', 'public:', 'private:', 'protected:', 'template<', '->'
+  ];
+  
+  // C indicators
+  const cIndicators = [
+    '#include', 'printf(', 'scanf(', 'int main()', 'void ', 'struct ', 'typedef ', 'malloc(', 'free('
+  ];
+  
+  // Count indicators for each language
+  let pythonCount = 0;
+  let jsCount = 0;
+  let tsCount = 0;
+  let javaCount = 0;
+  let cppCount = 0;
+  let cCount = 0;
+  
+  pythonIndicators.forEach(indicator => {
+    if (code.includes(indicator)) pythonCount++;
+  });
+  
+  jsIndicators.forEach(indicator => {
+    if (code.includes(indicator)) jsCount++;
+  });
+  
+  tsIndicators.forEach(indicator => {
+    if (code.includes(indicator)) tsCount++;
+  });
+  
+  javaIndicators.forEach(indicator => {
+    if (code.includes(indicator)) javaCount++;
+  });
+  
+  cppIndicators.forEach(indicator => {
+    if (code.includes(indicator)) cppCount++;
+  });
+  
+  cIndicators.forEach(indicator => {
+    if (code.includes(indicator)) cCount++;
+  });
+  
+  // Add JS count to TS since TS is a superset
+  tsCount += jsCount;
+  
+  // Determine the most likely language
+  const counts = [
+    { lang: 'python', count: pythonCount },
+    { lang: 'javascript', count: jsCount },
+    { lang: 'typescript', count: tsCount },
+    { lang: 'java', count: javaCount },
+    { lang: 'cpp', count: cppCount },
+    { lang: 'c', count: cCount }
+  ];
+  
+  counts.sort((a, b) => b.count - a.count);
+  
+  // If the most likely language has indicators and is different from specified
+  if (counts[0].count > 0 && counts[0].lang !== specifiedLanguage) {
+    return counts[0].lang;
+  }
+  
+  return null;
 }
