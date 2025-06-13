@@ -5,14 +5,17 @@ import { CodeEditor } from "@/components/CodeEditor";
 import { programmingLanguages, type ProgrammingLanguage } from "@/lib/utils";
 import { Loader2, Code2, Sparkles, Copy, Check } from "lucide-react";
 import { MarkdownRenderer } from "@/components/MarkdownRenderer";
+import Settings from "@/components/Settings";
 
 export default function Home() {
   const [code, setCode] = useState("");
-  const [language, setLanguage] = useState<ProgrammingLanguage>("python");
+  const [progLang, setProgLang] = useState<ProgrammingLanguage>("python");
   const [explanation, setExplanation] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [copied, setCopied] = useState(false);
+  const [tone, setTone] = useState('professional');
+  const [outputLang, setOutputLang] = useState('english');
 
   const handleExplain = async () => {
     if (!code.trim()) {
@@ -30,7 +33,12 @@ export default function Home() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ code, language }),
+        body: JSON.stringify({ 
+          code, 
+          language: progLang,
+          outputLanguage: outputLang,
+          tone 
+        }),
       });
 
       const data = await response.json();
@@ -57,82 +65,101 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
-      <div className="container mx-auto px-4 py-12">
-        <div className="text-center mb-12">
-          <h1 className="text-5xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600">
+      <div className="container mx-auto px-4 py-8 sm:py-12 max-w-7xl">
+        <div className="text-center mb-8 sm:mb-12">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600">
             DeCodeX
           </h1>
-          <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-            Get detailed, AI-powered explanations of your code in seconds. 
+          <p className="text-base sm:text-lg md:text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+            Get detailed, AI-powered explanations of your code in seconds.
             Understand complex codebases with ease.
           </p>
         </div>
 
-        <div className="max-w-5xl mx-auto space-y-8">
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
-            <div className="flex items-center gap-4 mb-6">
-              <select
-                value={language}
-                onChange={(e) => setLanguage(e.target.value as ProgrammingLanguage)}
-                className="px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              >
-                {programmingLanguages.map((lang) => (
-                  <option key={lang.id} value={lang.id}>
-                    {lang.name}
-                  </option>
-                ))}
-              </select>
-              <button
-                onClick={handleExplain}
-                disabled={loading}
-                className="px-6 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 transition-all duration-200 shadow-md hover:shadow-lg"
-              >
-                {loading ? (
-                  <Loader2 className="w-5 h-5 animate-spin" />
-                ) : (
-                  <Sparkles className="w-5 h-5" />
-                )}
-                Explain Code
-              </button>
-            </div>
-
-            <CodeEditor
-              value={code}
-              language={language}
-              onChange={setCode}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 max-w-[90rem] mx-auto">
+          <div className="lg:col-span-3 order-2 lg:order-1">
+            <Settings
+              explanation={explanation}
+              onToneChange={setTone}
+              onLanguageChange={setOutputLang}
             />
           </div>
 
-          {error && (
-            <div className="p-4 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-lg border border-red-200 dark:border-red-800">
-              {error}
-            </div>
-          )}
-
-          {explanation && (
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-2xl font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
-                  <Code2 className="w-6 h-6" />
-                  Explanation
-                </h2>
-                <button
-                  onClick={copyToClipboard}
-                  className="p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
-                  title="Copy explanation"
+          <div className="lg:col-span-9 order-1 lg:order-2 space-y-6">
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4 sm:p-6">
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 mb-6">
+                <select
+                  value={progLang}
+                  onChange={(e) => setProgLang(e.target.value as ProgrammingLanguage)}
+                  className="px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full sm:w-auto"
                 >
-                  {copied ? (
-                    <Check className="w-5 h-5 text-green-500" />
+                  {programmingLanguages.map((lang) => (
+                    <option key={lang.id} value={lang.id}>
+                      {lang.name}
+                    </option>
+                  ))}
+                </select>
+                
+                <button
+                  onClick={handleExplain}
+                  disabled={loading || !code.trim()}
+                  className="flex-1 sm:flex-none px-6 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
+                >
+                  {loading ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Processing...
+                    </>
                   ) : (
-                    <Copy className="w-5 h-5" />
+                    <>
+                      <Sparkles className="w-4 h-4" />
+                      Explain Code
+                    </>
                   )}
                 </button>
               </div>
-              <MarkdownRenderer content={explanation} />
+
+              <div className="min-h-[300px] sm:min-h-[400px]">
+                <CodeEditor
+                  value={code}
+                  onChange={setCode}
+                  language={progLang}
+                />
+              </div>
             </div>
-          )}
+
+            {error && (
+              <div className="p-4 rounded-lg bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400">
+                {error}
+              </div>
+            )}
+
+            {explanation && (
+              <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4 sm:p-6">
+                <div className="flex justify-end mb-4">
+                  <button
+                    onClick={copyToClipboard}
+                    className="flex items-center gap-2 px-3 py-1 rounded-md bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                  >
+                    {copied ? (
+                      <>
+                        <Check className="w-4 h-4" />
+                        Copied!
+                      </>
+                    ) : (
+                      <>
+                        <Copy className="w-4 h-4" />
+                        Copy
+                      </>
+                    )}
+                  </button>
+                </div>
+                <MarkdownRenderer content={explanation} />
+              </div>
+            )}
+          </div>
         </div>
-        </div>
-      </main>
+      </div>
+    </main>
   );
 }

@@ -15,9 +15,9 @@ export function CodeEditor({
   readOnly = false,
 }: CodeEditorProps) {
   return (
-    <div className="h-[400px] w-full rounded-lg border border-gray-200 overflow-hidden">
+    <div className="min-h-[400px] w-full rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden bg-white dark:bg-gray-800 shadow-inner">
       <Editor
-        height="100%"
+        height="400px"
         defaultLanguage={language}
         language={language}
         value={value}
@@ -30,8 +30,16 @@ export function CodeEditor({
           readOnly,
           scrollBeyondLastLine: false,
           automaticLayout: true,
+          wordWrap: "on",
+          padding: { top: 16, bottom: 16 },
+          lineHeight: 1.6,
+          fontFamily: "'Geist Mono', monospace",
+          renderLineHighlight: "all",
+          suggestOnTriggerCharacters: true,
+          formatOnPaste: true,
+          formatOnType: true,
         }}
       />
     </div>
   );
-} 
+}
