@@ -1,10 +1,14 @@
 import { NextResponse } from "next/server";
 import axios from "axios";
 
+<<<<<<< HEAD
 if (!process.env.OPENROUTER_API_KEY) {
   throw new Error("OPENROUTER_API_KEY is not set in environment variables");
 }
 
+=======
+const API_KEY ='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';
+>>>>>>> 95182137fb81b7738aa6faaea5dfe30e95b7ac09
 const MODEL_ID = 'mistralai/mixtral-8x7b-instruct';
 
 export async function POST(req: Request) {
