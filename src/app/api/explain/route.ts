@@ -6,63 +6,172 @@ if (!process.env.OPENROUTER_API_KEY) {
 }
 
 const MODEL_ID = 'mistralai/mixtral-8x7b-instruct';
+const MAX_RETRIES = 3;
+const TIMEOUT = 30000; // 30 seconds
 
 export async function POST(req: Request) {
   try {
-    const { code, language, outputLanguage, tone } = await req.json();
+    const body = await req.json();
+    const { code, language, outputLanguage, tone } = body;
 
-    if (!code || !language) {
+    // Enhanced input validation
+    if (!code || typeof code !== 'string' || code.trim().length === 0) {
       return NextResponse.json(
-        { error: "Code and language are required" },
+        { 
+          error: "Code is required and must be a non-empty string",
+          details: "Please provide valid code to explain"
+        },
         { status: 400 }
       );
     }
 
-    // Default values if not provided
-    const outputLang = outputLanguage || 'english';
-    const outputTone = tone || 'professional';
-    
-    // Check if code might be in the wrong language
-    const possibleWrongLanguage = detectWrongLanguage(code, language);
-    let correctionPrompt = '';
-    
-    if (possibleWrongLanguage) {
-      correctionPrompt = `
-NOTE: The submitted code appears to be written in ${possibleWrongLanguage} rather than ${language}. 
-Please correct this in your explanation and provide the equivalent code in ${language} if possible.`;
+    if (!language || typeof language !== 'string') {
+      return NextResponse.json(
+        { 
+          error: "Programming language is required",
+          details: "Please specify the programming language of your code"
+        },
+        { status: 400 }
+      );
     }
 
-    const prompt = `You are an expert programmer and code tutor. 
-Explain the following code written in ${language} in a ${outputTone} tone and provide the explanation in ${outputLang}.${correctionPrompt}
+    // Validate code length
+    if (code.length > 10000) {
+      return NextResponse.json(
+        { 
+          error: "Code is too long",
+          details: "Please provide code with less than 10,000 characters"
+        },
+        { status: 400 }
+      );
+    }
 
-**Instructions:**
-- Present the explanation as a hierarchy or flowchart using markdown.
-- Use bullet points, indentation, and code blocks to show structure.
-- For each function, block, or important line, show its relationship to others (parent/child, sequence, etc.).
-- Summarize the overall logic at the top, then break down each part step by step.
-- If possible, use mermaid.js diagrams (in markdown) to visualize the flow or structure.
-- After the explanation, provide the code's output (if possible) for verification.
-- Maintain the specified tone (${outputTone}) throughout the explanation.
-- Ensure the explanation is culturally appropriate for ${outputLang} speakers.
-${possibleWrongLanguage ? '- Provide the corrected code in the requested language.' : ''}
+    // Default values with validation
+    const outputLang = outputLanguage && typeof outputLanguage === 'string' 
+      ? outputLanguage.toLowerCase() : 'english';
+    const outputTone = tone && typeof tone === 'string' 
+      ? tone.toLowerCase() : 'professional';
+    
+    // Validate tone options
+    const validTones = ['professional', 'casual', 'technical', 'beginner-friendly', 'detailed'];
+    const selectedTone = validTones.includes(outputTone) ? outputTone : 'professional';
+    
+    // Check if code might be in the wrong language
+    const detectionResult = detectWrongLanguage(code, language.toLowerCase());
+    let correctionPrompt = '';
+    
+    if (detectionResult.possibleLanguage) {
+      correctionPrompt = `
 
-**Output Format:**
-- Use markdown syntax for the explanation.
-- Include mermaid.js diagrams if applicable.
-- Show the code's output at the end for verification.
-- Use code blocks for every code snippet you provide.
-- Format the explanation in ${outputLang}.
+⚠️ **IMPORTANT NOTICE**: The submitted code appears to be written in **${detectionResult.possibleLanguage}** rather than **${language}**. 
+Please address this discrepancy in your explanation and provide the equivalent code in **${language}** if possible.
+Confidence level: ${detectionResult.confidence}%`;
+    }
 
-**Code:**
+    // Enhanced prompt for better responses
+    const prompt = `You are an expert programming tutor and code analyst. Your task is to provide a comprehensive, well-structured explanation of the given code.
+
+**Context:**
+- Programming Language: ${language}
+- Explanation Language: ${outputLang}
+- Tone: ${selectedTone}
+- Code Length: ${code.length} characters${correctionPrompt}
+
+**Your Response Must Follow This EXACT Structure:**
+
+## 📋 Code Overview
+[Provide a 2-3 sentence summary of what this code does]
+
+## 🏗️ Code Structure
+[Use a mermaid flowchart or sequence diagram to visualize the code flow]
+
+## 🔍 Detailed Breakdown
+
+### Main Components:
+[List and explain each major component, function, or class]
+
+### Step-by-Step Execution:
+[Explain the code execution flow with numbered steps]
+
+## 💻 Code Analysis
+
+\`\`\`${language}
 ${code}
-`;
+\`\`\`
 
+### Line-by-Line Explanation:
+[Provide detailed explanation of complex lines]
+
+
+## 🚀 Expected Output
+[If possible, show what the code would output when executed]
+
+## 💡 Best Practices & Suggestions
+[Mention any improvements or best practices]
+
+${detectionResult.possibleLanguage ? `
+## 🔧 Language Correction
+[Since you detected the wrong language, provide the corrected version in ${language}]
+
+\`\`\`${language}
+[Corrected code here]
+\`\`\`
+` : ''}
+
+**CRITICAL FORMATTING REQUIREMENTS:**
+// - Use proper markdown formatting
+- Wrap ALL code snippets in triple backticks with language specification
+- Use clear headings and subheadings
+- Include emojis in headings for better readability
+- Provide code in copyable format
+- Use bullet points and numbered lists where appropriate
+- Include mermaid diagrams for complex logic flows
+- Maintain ${selectedTone} tone throughout
+- Write in ${outputLang} language
+
+**Code to Explain:**
+\`\`\`${language}
+${code}
+\`\`\``;
+
+    // Make API request with retry logic
+    const explanation = await makeAPIRequestWithRetry(prompt);
+
+    return NextResponse.json({ 
+      success: true,
+      explanation,
+      metadata: {
+        detectedLanguage: detectionResult.possibleLanguage,
+        confidence: detectionResult.confidence,
+        codeLength: code.length,
+        language: language,
+        tone: selectedTone,
+        outputLanguage: outputLang
+      }
+    });
+
+  } catch (error) {
+    console.error('Error explaining code:', error);
+    return handleError(error);
+  }
+}
+
+// Enhanced API request function with retry logic
+async function makeAPIRequestWithRetry(prompt: string, retryCount = 0): Promise<string> {
+  try {
     const response = await axios.post(
       'https://openrouter.ai/api/v1/chat/completions',
       {
         model: MODEL_ID,
-        messages: [{ role: 'user', content: prompt }],
-        max_tokens: 2000,
+        messages: [{ 
+          role: 'user', 
+          content: prompt 
+        }],
+        max_tokens: 4000,
+        temperature: 0.7,
+        top_p: 0.9,
+        frequency_penalty: 0.1,
+        presence_penalty: 0.1
       },
       {
         headers: {
@@ -71,123 +180,235 @@ ${code}
           'X-Title': 'DeCodeX - AI Code Explainer',
           'Content-Type': 'application/json',
         },
+        timeout: TIMEOUT
       }
     );
 
-    const explanation = response.data.choices[0].message.content;
-
-    return NextResponse.json({ 
-      explanation,
-      possibleWrongLanguage: possibleWrongLanguage || null 
-    });
-  } catch (error) {
-    console.error('Error explaining code:', error);
-    
-    if (axios.isAxiosError(error)) {
-      const statusCode = error.response?.status || 500;
-      const errorMessage = error.response?.data?.error || error.message;
-      
-      return NextResponse.json(
-        { error: `API Error: ${errorMessage}` },
-        { status: statusCode }
-      );
+    if (!response.data?.choices?.[0]?.message?.content) {
+      throw new Error('Invalid response format from AI service');
     }
 
-    return NextResponse.json(
-      { error: 'Failed to explain code' },
-      { status: 500 }
-    );
+    return response.data.choices[0].message.content;
+
+  } catch (error) {
+    if (retryCount < MAX_RETRIES) {
+      console.log(`Retrying API request... Attempt ${retryCount + 1}/${MAX_RETRIES}`);
+      await new Promise(resolve => setTimeout(resolve, 1000 * (retryCount + 1))); // Exponential backoff
+      return makeAPIRequestWithRetry(prompt, retryCount + 1);
+    }
+    throw error;
   }
 }
 
-// Helper function to detect if code might be in a different language than specified
-function detectWrongLanguage(code: string, specifiedLanguage: string): string | null {
-  // Python indicators
-  const pythonIndicators = [
-    'def ', 'import ', 'from ', ' as ', ':\n', 'print(', 'if __name__ == "__main__":', 
-    'class ', '#!', 'elif ', 'else:', 'try:', 'except:', 'finally:'
-  ];
-  
-  // JavaScript indicators
-  const jsIndicators = [
-    'function ', 'const ', 'let ', 'var ', '=>', 'console.log(', 'document.', 'window.', 
-    'export ', 'import ', 'class ', 'extends ', 'return ', 'new ', 'this.'
-  ];
-  
-  // TypeScript indicators (in addition to JS)
-  const tsIndicators = [
-    ': string', ': number', ': boolean', ': any', ': void', 'interface ', 'type ', '<T>', 
-    'implements ', 'private ', 'public ', 'protected ', 'readonly ', 'namespace '
-  ];
-  
-  // Java indicators
-  const javaIndicators = [
-    'public class ', 'private ', 'protected ', 'void ', 'static ', 'extends ', 'implements ', 
-    'System.out.println(', 'import java.', 'public static void main(String[] args)', 'new '
-  ];
-  
-  // C++ indicators
-  const cppIndicators = [
-    '#include', 'using namespace', 'std::', 'cout <<', 'cin >>', 'int main()', 'void ', 
-    'class ', 'public:', 'private:', 'protected:', 'template<', '->'
-  ];
-  
-  // C indicators
-  const cIndicators = [
-    '#include', 'printf(', 'scanf(', 'int main()', 'void ', 'struct ', 'typedef ', 'malloc(', 'free('
-  ];
-  
-  // Count indicators for each language
-  let pythonCount = 0;
-  let jsCount = 0;
-  let tsCount = 0;
-  let javaCount = 0;
-  let cppCount = 0;
-  let cCount = 0;
-  
-  pythonIndicators.forEach(indicator => {
-    if (code.includes(indicator)) pythonCount++;
-  });
-  
-  jsIndicators.forEach(indicator => {
-    if (code.includes(indicator)) jsCount++;
-  });
-  
-  tsIndicators.forEach(indicator => {
-    if (code.includes(indicator)) tsCount++;
-  });
-  
-  javaIndicators.forEach(indicator => {
-    if (code.includes(indicator)) javaCount++;
-  });
-  
-  cppIndicators.forEach(indicator => {
-    if (code.includes(indicator)) cppCount++;
-  });
-  
-  cIndicators.forEach(indicator => {
-    if (code.includes(indicator)) cCount++;
-  });
-  
-  // Add JS count to TS since TS is a superset
-  tsCount += jsCount;
-  
-  // Determine the most likely language
-  const counts = [
-    { lang: 'python', count: pythonCount },
-    { lang: 'javascript', count: jsCount },
-    { lang: 'typescript', count: tsCount },
-    { lang: 'java', count: javaCount },
-    { lang: 'cpp', count: cppCount },
-    { lang: 'c', count: cCount }
-  ];
-  
-  counts.sort((a, b) => b.count - a.count);
-  
-  // If the most likely language has indicators and is different from specified
-  if (counts[0].count > 0 && counts[0].lang !== specifiedLanguage) {
-    return counts[0].lang;
+// Enhanced error handling
+function handleError(error: any): NextResponse {
+  // Rate limiting error
+  if (axios.isAxiosError(error)) {
+    const status = error.response?.status || 500;
+    const responseData = error.response?.data;
+
+    switch (status) {
+      case 400:
+        return NextResponse.json({
+          error: "Invalid request",
+          details: responseData?.error || "The request was malformed. Please check your code and try again.",
+          suggestions: [
+            "Verify your code is properly formatted",
+            "Check if the programming language is correctly specified",
+            "Ensure your code is not too long (max 10,000 characters)"
+          ]
+        }, { status: 400 });
+
+      case 401:
+        return NextResponse.json({
+          error: "Authentication failed",
+          details: "Invalid API key or authentication issue",
+          suggestions: ["Please contact support if this error persists"]
+        }, { status: 401 });
+
+      case 429:
+        return NextResponse.json({
+          error: "Rate limit exceeded",
+          details: "Too many requests. Please wait before trying again.",
+          suggestions: [
+            "Wait a few minutes before making another request",
+            "Consider upgrading your plan for higher limits"
+          ],
+          retryAfter: error.response?.headers?.['retry-after'] || 60
+        }, { status: 429 });
+
+      case 500:
+      case 502:
+      case 503:
+        return NextResponse.json({
+          error: "Service temporarily unavailable",
+          details: "The AI service is currently experiencing issues",
+          suggestions: [
+            "Please try again in a few minutes",
+            "If the problem persists, contact support"
+          ]
+        }, { status: 503 });
+
+      default:
+        return NextResponse.json({
+          error: "API request failed",
+          details: responseData?.error || error.message || "Unknown API error",
+          statusCode: status
+        }, { status });
+    }
   }
+
+  // Timeout error
+  if (error.code === 'ECONNABORTED' || error.message?.includes('timeout')) {
+    return NextResponse.json({
+      error: "Request timeout",
+      details: "The request took too long to process",
+      suggestions: [
+        "Try with a shorter code snippet",
+        "Check your internet connection",
+        "Try again in a few moments"
+      ]
+    }, { status: 408 });
+  }
+
+  // JSON parsing error
+  if (error instanceof SyntaxError) {
+    return NextResponse.json({
+      error: "Invalid request format",
+      details: "The request body contains invalid JSON",
+      suggestions: ["Please check your request format and try again"]
+    }, { status: 400 });
+  }
+
+  // Generic error
+  return NextResponse.json({
+    error: "Internal server error",
+    details: error.message || "An unexpected error occurred",
+    suggestions: [
+      "Please try again",
+      "If the problem persists, contact support"
+    ]
+  }, { status: 500 });
+}
+
+// Enhanced language detection function
+function detectWrongLanguage(code: string, specifiedLanguage: string): { 
+  possibleLanguage: string | null, 
+  confidence: number 
+} {
+  const codeUpper = code.toUpperCase();
+  const codeLower = code.toLowerCase();
   
-  return null;
+  // Language patterns with weights
+  const languagePatterns = {
+    python: {
+      patterns: [
+        { pattern: /def\s+\w+\s*\(/, weight: 10 },
+        { pattern: /import\s+\w+/, weight: 8 },
+        { pattern: /from\s+\w+\s+import/, weight: 9 },
+        { pattern: /if\s+__name__\s*==\s*['""]__main__['""]/, weight: 15 },
+        { pattern: /print\s*\(/, weight: 7 },
+        { pattern: /:\s*\n/, weight: 5 },
+        { pattern: /elif\s+/, weight: 8 },
+        { pattern: /except\s+/, weight: 10 },
+        { pattern: /class\s+\w+.*:/, weight: 9 }
+      ]
+    },
+    javascript: {
+      patterns: [
+        { pattern: /function\s+\w+\s*\(/, weight: 10 },
+        { pattern: /(const|let|var)\s+\w+/, weight: 8 },
+        { pattern: /=>\s*{/, weight: 9 },
+        { pattern: /console\.log\s*\(/, weight: 10 },
+        { pattern: /document\.\w+/, weight: 12 },
+        { pattern: /window\.\w+/, weight: 12 },
+        { pattern: /\.addEventListener\s*\(/, weight: 11 },
+        { pattern: /JSON\.(parse|stringify)/, weight: 10 }
+      ]
+    },
+    typescript: {
+      patterns: [
+        { pattern: /:\s*(string|number|boolean|any|void)/, weight: 12 },
+        { pattern: /interface\s+\w+/, weight: 15 },
+        { pattern: /type\s+\w+\s*=/, weight: 12 },
+        { pattern: /<T>|<T,/, weight: 10 },
+        { pattern: /(private|public|protected)\s+/, weight: 11 },
+        { pattern: /implements\s+\w+/, weight: 10 },
+        { pattern: /namespace\s+\w+/, weight: 12 }
+      ]
+    },
+    java: {
+      patterns: [
+        { pattern: /public\s+class\s+\w+/, weight: 15 },
+        { pattern: /public\s+static\s+void\s+main/, weight: 20 },
+        { pattern: /System\.out\.print/, weight: 12 },
+        { pattern: /import\s+java\./, weight: 10 },
+        { pattern: /(private|public|protected)\s+\w+/, weight: 8 },
+        { pattern: /extends\s+\w+/, weight: 10 },
+        { pattern: /new\s+\w+\s*\(/, weight: 7 }
+      ]
+    },
+    cpp: {
+      patterns: [
+        { pattern: /#include\s*<\w+>/, weight: 12 },
+        { pattern: /using\s+namespace\s+std/, weight: 15 },
+        { pattern: /std::\w+/, weight: 10 },
+        { pattern: /cout\s*<</, weight: 12 },
+        { pattern: /cin\s*>>/, weight: 12 },
+        { pattern: /int\s+main\s*\(/, weight: 15 },
+        { pattern: /template\s*</, weight: 12 },
+        { pattern: /->\w+/, weight: 8 }
+      ]
+    },
+    c: {
+      patterns: [
+        { pattern: /#include\s*<\w+\.h>/, weight: 12 },
+        { pattern: /printf\s*\(/, weight: 10 },
+        { pattern: /scanf\s*\(/, weight: 10 },
+        { pattern: /malloc\s*\(/, weight: 12 },
+        { pattern: /free\s*\(/, weight: 10 },
+        { pattern: /struct\s+\w+/, weight: 10 },
+        { pattern: /typedef\s+/, weight: 8 }
+      ]
+    }
+  };
+
+  // Calculate scores for each language
+  const scores: { [key: string]: number } = {};
+  
+  Object.entries(languagePatterns).forEach(([lang, { patterns }]) => {
+    scores[lang] = 0;
+    patterns.forEach(({ pattern, weight }) => {
+      const matches = code.match(pattern);
+      if (matches) {
+        scores[lang] += weight * matches.length;
+      }
+    });
+  });
+
+  // Find the language with the highest score
+  const sortedLanguages = Object.entries(scores)
+    .sort(([, a], [, b]) => b - a)
+    .filter(([, score]) => score > 0);
+
+  if (sortedLanguages.length === 0) {
+    return { possibleLanguage: null, confidence: 0 };
+  }
+
+  const [detectedLang, score] = sortedLanguages[0];
+  const totalPossibleScore = Math.max(...Object.values(languagePatterns).map(p => 
+    p.patterns.reduce((sum, pattern) => sum + pattern.weight, 0)
+  ));
+  
+  const confidence = Math.min(Math.round((score / totalPossibleScore) * 100), 100);
+  
+  // Only return if confidence is reasonable and language is different
+  if (confidence >= 30 && detectedLang !== specifiedLanguage.toLowerCase()) {
+    return { 
+      possibleLanguage: detectedLang, 
+      confidence 
+    };
+  }
+
+  return { possibleLanguage: null, confidence: 0 };
 }
