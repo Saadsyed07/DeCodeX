@@ -5,6 +5,68 @@ import { CodeEditor } from "@/components/CodeEditor";
 import { programmingLanguages, type ProgrammingLanguage } from "@/lib/utils";
 import { Loader2, Sparkles, Copy, Check, Globe, MessageSquare } from "lucide-react";
 import { MarkdownRenderer } from "@/components/MarkdownRenderer";
+import Navbar from "@/components/Navbar";
+
+// --- Language icon map ---
+const languageIcons: Record<string, React.ReactNode> = {
+  python: (
+    <svg viewBox="0 0 64 64" width={80} height={80}>
+      <defs>
+        <linearGradient id="pythonYellow" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="10%" stopColor="#ffd43b" />
+          <stop offset="90%" stopColor="#ffe873" />
+        </linearGradient>
+        <linearGradient id="pythonBlue" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="10%" stopColor="#366a96" />
+          <stop offset="90%" stopColor="#4b8bbe" />
+        </linearGradient>
+      </defs>
+      <path
+        d="M32 5c-10 0-12 4-12 8v6h24v-3c0-4-2-9-12-9z"
+        fill="url(#pythonBlue)"
+      />
+      <path
+        d="M20 19h-9c-4 0-7 3-7 7v10c0 4 3 8 7 8h9v-5c0-4 2-8 12-8s12 4 12 8v5h9c4 0 7-4 7-8V27c0-4-3-7-7-7h-9v3c0 4-2 8-12 8s-12-4-12-8v-3z"
+        fill="url(#pythonYellow)"
+      />
+      <circle cx="22" cy="13" r="2" fill="#fff" />
+      <circle cx="42" cy="51" r="2" fill="#fff" />
+    </svg>
+  ),
+  javascript: (
+    <svg width={80} height={80} viewBox="0 0 64 64">
+      <rect width="64" height="64" rx="12" fill="#f7df1e" />
+      <text
+        x="32"
+        y="45"
+        fontFamily="monospace"
+        fontWeight="bold"
+        fontSize="32"
+        textAnchor="middle"
+        fill="#222"
+      >
+        JS
+      </text>
+    </svg>
+  ),
+  typescript: (
+    <svg width={80} height={80} viewBox="0 0 64 64">
+      <rect width="64" height="64" rx="12" fill="#3178c6" />
+      <text
+        x="32"
+        y="45"
+        fontFamily="monospace"
+        fontWeight="bold"
+        fontSize="28"
+        textAnchor="middle"
+        fill="#fff"
+      >
+        TS
+      </text>
+    </svg>
+  ),
+  // Add more language icons as needed
+};
 
 export default function Home() {
   const [code, setCode] = useState("");
@@ -21,7 +83,6 @@ export default function Home() {
       setError("Please enter some code to explain");
       return;
     }
-
     const syntaxErrors = document.querySelectorAll(".monaco-editor .marker-error");
     if (syntaxErrors.length > 0) {
       setError("Please fix the syntax errors in your code before explaining");
@@ -59,9 +120,10 @@ export default function Home() {
   };
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
+    <main className="min-h-screen bg-[#eee6df] dark:bg-gradient-to-b dark:from-gray-900 dark:to-gray-800">
+      <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
+    <Navbar />
       <div className="container mx-auto px-4 py-8 sm:py-12 max-w-7xl">
-        {/* Header */}
         <div className="text-center mb-8 sm:mb-12">
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600">
             DeCodeX
@@ -71,25 +133,32 @@ export default function Home() {
           </p>
         </div>
 
-        {/* Grid Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 max-w-[90rem] mx-auto">
+        {/* Responsive Grid Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 w-full max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Sidebar (optional) */}
-          <div className="lg:col-span-3 order-2 lg:order-1"></div>
+          <div className="hidden lg:block lg:col-span-3 order-2 lg:order-1"></div>
 
           {/* Main Content */}
-          <div className="lg:col-span-9 order-1 lg:order-2 space-y-6">
+          <div className="col-span-1 lg:col-span-9 order-1 lg:order-2 space-y-6 w-full">
             <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4 sm:p-6">
               {/* Language Selectors & Button */}
-              <div className="flex flex-col sm:flex-row flex-wrap gap-4 mb-6">
-                {/* Programming Language Selector */}
-                <div className="flex flex-col">
+              <div className="flex flex-col sm:flex-row flex-wrap gap-4 mb-6 items-center">
+                {/* Programming Language Icon & Selector */}
+                <div className="flex flex-col items-center justify-center">
+                  <div className="w-20 h-20 flex items-center justify-center">
+                    <span className="block w-20 h-20">
+                      {languageIcons[progLang] || null}
+                    </span>
+                  </div>
+                </div>
+                <div className="flex flex-col justify-center">
                   <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     Programming Language
                   </label>
                   <select
                     value={progLang}
                     onChange={(e) => setProgLang(e.target.value as ProgrammingLanguage)}
-                    className="px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500"
+                    className="px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 min-w-[150px] font-semibold"
                   >
                     {programmingLanguages.map((lang) => (
                       <option key={lang.id} value={lang.id}>
@@ -100,7 +169,7 @@ export default function Home() {
                 </div>
 
                 {/* Output Language Selector */}
-                <div className="flex flex-col">
+                <div className="flex flex-col justify-center">
                   <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     <Globe className="w-4 h-4" />
                     Output Language
@@ -108,7 +177,7 @@ export default function Home() {
                   <select
                     value={outputLang}
                     onChange={(e) => setOutputLang(e.target.value)}
-                    className="px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500"
+                    className="px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 min-w-[120px] font-semibold"
                   >
                     <option value="english">English</option>
                     <option value="spanish">Spanish</option>
@@ -122,7 +191,7 @@ export default function Home() {
                 </div>
 
                 {/* Output Tone Selector */}
-                <div className="flex flex-col">
+                <div className="flex flex-col justify-center">
                   <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     <MessageSquare className="w-4 h-4" />
                     Output Tone
@@ -130,7 +199,7 @@ export default function Home() {
                   <select
                     value={tone}
                     onChange={(e) => setTone(e.target.value)}
-                    className="px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500"
+                    className="px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 min-w-[120px] font-semibold"
                   >
                     <option value="professional">Professional</option>
                     <option value="casual">Casual</option>
@@ -163,19 +232,19 @@ export default function Home() {
               </div>
 
               {/* Code Editor */}
-              <div className="min-h-[300px] sm:min-h-[400px]">
+              <div className="min-h-[300px] sm:min-h-[400px] w-full">
                 <CodeEditor value={code} onChange={setCode} language={progLang} />
               </div>
             </div>
 
-            {/* Error Display */}
+            {/* Error Message */}
             {error && (
               <div className="p-4 rounded-lg bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400">
                 {error}
               </div>
             )}
 
-            {/* Explanation Display */}
+            {/* Explanation Output */}
             {explanation && (
               <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4 sm:p-6">
                 <div className="flex justify-end mb-4">

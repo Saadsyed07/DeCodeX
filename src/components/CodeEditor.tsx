@@ -1,9 +1,7 @@
-
 import React, { useEffect, useState } from "react";
 import { Editor, useMonaco } from "@monaco-editor/react";
 import { AlertCircle, CheckCircle2 } from "lucide-react";
 import { ProgrammingLanguage } from "@/lib/utils";
-
 
 interface CodeEditorProps {
   value: string;
@@ -28,6 +26,26 @@ export function CodeEditor({
   const monaco = useMonaco();
   const [errors, setErrors] = useState<ValidationError[]>([]);
   const [isValid, setIsValid] = useState(true);
+
+  // Define dark blue Monaco theme on mount
+  useEffect(() => {
+    if (monaco) {
+      monaco.editor.defineTheme("vs-darkblue", {
+        base: "vs-dark",
+        inherit: true,
+        rules: [],
+        colors: {
+          "editor.background": "#1a237e", // dark blue
+          "editor.foreground": "#fff",
+          "editor.lineHighlightBackground": "#28359380",
+          "editor.selectionBackground": "#3949ab99",
+          "editorCursor.foreground": "#fff",
+          "editorIndentGuide.background": "#3949ab",
+          "editorIndentGuide.activeBackground": "#7986cb",
+        },
+      });
+    }
+  }, [monaco]);
 
   useEffect(() => {
     if (!monaco) return;
@@ -134,10 +152,11 @@ export function CodeEditor({
   }, [monaco, value, language]);
 
   return (
-    <div className="relative flex flex-col w-full max-w-3xl mx-auto my-6 rounded-2xl shadow-xl bg-gradient-to-br from-blue-50/80 via-white to-slate-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 border border-gray-100 dark:border-gray-700 transition-colors">
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet"/>
-      <div className="w-full rounded-t-2xl overflow-hidden bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
+    <div className="relative w-full px-4 sm:px-6 lg:px-8 my-6 rounded-2xl shadow-xl bg-[#1a237e] border border-gray-100 transition-colors">
+      <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
+      <div className="w-full rounded-t-2xl overflow-hidden bg-[#1a237e] border-b border-gray-200">
         <Editor
+          width="100%"
           height="40vh"
           defaultLanguage={language}
           language={language}
@@ -168,8 +187,9 @@ export function CodeEditor({
           }}
         />
       </div>
+
       {errors.length > 0 && (
-        <div className="mt-3 mx-4 p-4 rounded-lg bg-gradient-to-br from-red-100/80 via-red-50 to-rose-50 dark:from-red-950/50 dark:via-red-900/40 dark:to-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 text-sm shadow flex flex-col gap-2 animate-in fade-in">
+        <div className="mt-3 mx-4 p-4 rounded-lg bg-gradient-to-br from-red-100/80 via-red-50 to-rose-50 border border-red-200 text-red-700 text-sm shadow flex flex-col gap-2 animate-in fade-in">
           <div className="flex items-center gap-2 font-semibold">
             <AlertCircle className="w-4 h-4" />
             Issues detected in your code
@@ -178,7 +198,7 @@ export function CodeEditor({
             {errors.map((error, idx) => (
               <li key={idx}>
                 <span className="font-medium">Line {error.line}:</span> {error.message}
-                <span className="ml-2 text-gray-500 dark:text-gray-400">
+                <span className="ml-2 text-gray-500">
                   ({error.severity})
                 </span>
               </li>
@@ -187,12 +207,11 @@ export function CodeEditor({
         </div>
       )}
       {value.trim().length > 0 && errors.length === 0 && (
-        <div className="mt-3 mx-4 p-4 rounded-lg bg-gradient-to-br from-green-50/90 via-green-100 to-emerald-50 dark:from-green-950/60 dark:to-green-900/20 border border-green-200 dark:border-green-800 text-green-700 dark:text-green-300 text-sm flex items-center gap-2 shadow animate-in fade-in">
+        <div className="mt-3 mx-4 p-4 rounded-lg bg-gradient-to-br from-green-50/90 via-green-100 to-emerald-50 border border-green-200 text-green-700 text-sm flex items-center gap-2 shadow animate-in fade-in">
           <CheckCircle2 className="w-4 h-4" />
           <span className="font-medium">Your code looks great!</span>
         </div>
       )}
     </div>
-    
   );
 }

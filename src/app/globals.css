@@ -30,11 +30,7 @@
 
 body {
   color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-    to bottom,
-    rgb(var(--background-start-rgb)),
-    rgb(var(--background-end-rgb))
-  );
+  background:#eee6df;
 }
 
 /* Custom scrollbar styles */
@@ -66,7 +62,7 @@ body {
 
 /* Prose styles for explanation text */
 .prose {
-  max-width: 65ch;
+  max-width: 100%;
   color: inherit;
 }
 
