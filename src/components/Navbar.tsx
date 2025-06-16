@@ -1,18 +1,33 @@
 'use client';
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Sun, Moon, Menu, X } from 'lucide-react';
-import { useTheme } from '@/lib/ThemeProvider';
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
-  const { theme, toggleTheme } = useTheme(); // custom theme hook
+  const [theme, setTheme] = useState("light");
+
+  // On mount, set theme from localStorage or system preference
+  useEffect(() => {
+    let saved = localStorage.getItem("theme");
+    let initial =
+      saved ||
+      (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+    setTheme(initial);
+    document.documentElement.classList.toggle("dark", initial === "dark");
+  }, []);
+
+  const toggleTheme = () => {
+    const newTheme = theme === "light" ? "dark" : "light";
+    setTheme(newTheme);
+    document.documentElement.classList.toggle("dark", newTheme === "dark");
+    localStorage.setItem("theme", newTheme);
+  };
 
   return (
     <nav className="w-full bg-[#eee7df] dark:bg-[#1a2332] shadow-sm transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-8">
         <div className="flex h-16 items-center justify-between">
-          
           {/* Logo */}
           <div className="flex items-center gap-3">
             <span className="inline-flex">
@@ -74,7 +89,7 @@ export default function Navbar() {
               aria-label="Toggle theme"
               className="flex items-center gap-2 px-4 py-2 rounded-md bg-[#f4f5fa] text-gray-900 hover:bg-gray-200 dark:bg-[#19253a] dark:text-gray-100 dark:hover:bg-[#22345a] transition-colors"
             >
-              {theme === 'light' ? (
+              {theme === "light" ? (
                 <>
                   <Moon className="w-4 h-4" /> Dark Mode
                 </>

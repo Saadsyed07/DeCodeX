@@ -91,7 +91,7 @@ export default function Home() {
             priority
           />
           <span className="font-mono text-xl font-bold">
-            print(<span className="text-green-600">"Code Explain"</span>)
+            print(<span className="text-green-600">"Explain's Code"</span>)
           </span>
         </motion.div>
 
@@ -108,7 +108,7 @@ export default function Home() {
             filter: "drop-shadow(0 2px 12px #b9a9f7a7)",
           }}
         >
-          in a click of a button
+          On Your FingerTips
         </motion.h2>
 
         {/* Subtitle */}
@@ -127,7 +127,7 @@ export default function Home() {
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 1.4, duration: 0.6, type: "spring" }}
-          href="#"
+          href="/explainer"
           className="mt-8 inline-block bg-black text-white px-8 py-4 rounded-xl text-lg font-bold shadow hover:bg-gray-900 transition-all"
         >
           Try for free!

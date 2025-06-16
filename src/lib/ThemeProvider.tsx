@@ -10,30 +10,29 @@ const ThemeContext = createContext<{
 }>({ theme: 'light', toggleTheme: () => {} });
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  // Use undefined first to avoid hydration mismatch
-  const [theme, setTheme] = useState<Theme | undefined>(undefined);
+  const [theme, setTheme] = useState<Theme>('light');
 
+  // Set theme from localStorage or system on mount
   useEffect(() => {
-    let savedTheme = (localStorage.getItem('theme') as Theme | null);
+    let savedTheme = localStorage.getItem('theme') as Theme | null;
     if (!savedTheme) {
-      savedTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      savedTheme = window.matchMedia('(prefers-color-scheme: dark)').matches
+        ? 'dark'
+        : 'light';
     }
     setTheme(savedTheme);
 
-    // Always set the class based on theme
+    // Set class on html
     document.documentElement.classList.toggle('dark', savedTheme === 'dark');
   }, []);
 
-  const toggleTheme = () => {
-    if (!theme) return;
-    const newTheme: Theme = theme === 'light' ? 'dark' : 'light';
-    setTheme(newTheme);
-    document.documentElement.classList.toggle('dark', newTheme === 'dark');
-    localStorage.setItem('theme', newTheme);
-  };
+  // Update html class and localStorage on theme change
+  useEffect(() => {
+    document.documentElement.classList.toggle('dark', theme === 'dark');
+    localStorage.setItem('theme', theme);
+  }, [theme]);
 
-  // Avoid rendering children until theme is resolved (prevents hydration mismatch/flash)
-  if (!theme) return null;
+  const toggleTheme = () => setTheme((t) => (t === 'light' ? 'dark' : 'light'));
 
   return (
     <ThemeContext.Provider value={{ theme, toggleTheme }}>
