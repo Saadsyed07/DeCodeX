@@ -6,67 +6,65 @@ import { programmingLanguages, type ProgrammingLanguage } from "@/lib/utils";
 import { Loader2, Sparkles, Copy, Check, Globe, MessageSquare } from "lucide-react";
 import { MarkdownRenderer } from "@/components/MarkdownRenderer";
 import Navbar from "@/components/Navbar";
-
 // --- Language icon map ---
 const languageIcons: Record<string, React.ReactNode> = {
   python: (
-    <svg viewBox="0 0 64 64" width={80} height={80}>
-      <defs>
-        <linearGradient id="pythonYellow" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="10%" stopColor="#ffd43b" />
-          <stop offset="90%" stopColor="#ffe873" />
-        </linearGradient>
-        <linearGradient id="pythonBlue" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="10%" stopColor="#366a96" />
-          <stop offset="90%" stopColor="#4b8bbe" />
-        </linearGradient>
-      </defs>
-      <path
-        d="M32 5c-10 0-12 4-12 8v6h24v-3c0-4-2-9-12-9z"
-        fill="url(#pythonBlue)"
-      />
-      <path
-        d="M20 19h-9c-4 0-7 3-7 7v10c0 4 3 8 7 8h9v-5c0-4 2-8 12-8s12 4 12 8v5h9c4 0 7-4 7-8V27c0-4-3-7-7-7h-9v3c0 4-2 8-12 8s-12-4-12-8v-3z"
-        fill="url(#pythonYellow)"
-      />
-      <circle cx="22" cy="13" r="2" fill="#fff" />
-      <circle cx="42" cy="51" r="2" fill="#fff" />
-    </svg>
+    <img
+      src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg"
+      alt="Python"
+      width={80}
+      height={80}
+      style={{ objectFit: "contain" }}
+    />
   ),
   javascript: (
-    <svg width={80} height={80} viewBox="0 0 64 64">
-      <rect width="64" height="64" rx="12" fill="#f7df1e" />
-      <text
-        x="32"
-        y="45"
-        fontFamily="monospace"
-        fontWeight="bold"
-        fontSize="32"
-        textAnchor="middle"
-        fill="#222"
-      >
-        JS
-      </text>
-    </svg>
+    <img
+      src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg"
+      alt="JavaScript"
+      width={80}
+      height={80}
+      style={{ objectFit: "contain" }}
+    />
   ),
   typescript: (
-    <svg width={80} height={80} viewBox="0 0 64 64">
-      <rect width="64" height="64" rx="12" fill="#3178c6" />
-      <text
-        x="32"
-        y="45"
-        fontFamily="monospace"
-        fontWeight="bold"
-        fontSize="28"
-        textAnchor="middle"
-        fill="#fff"
-      >
-        TS
-      </text>
-    </svg>
+    <img
+      src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/typescript/typescript-original.svg"
+      alt="TypeScript"
+      width={80}
+      height={80}
+      style={{ objectFit: "contain" }}
+    />
   ),
-  // Add more language icons as needed
+  java: (
+    <img
+      src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/java/java-original-wordmark.svg"
+      alt="Java"
+      width={80}
+      height={80}
+      style={{ objectFit: "contain" }}
+    />
+  ),
+  cpp: (
+    <img
+      src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/cplusplus/cplusplus-original.svg"
+      alt="C++"
+      width={80}
+      height={80}
+      style={{ objectFit: "contain" }}
+    />
+  ),
+  c: (
+    <img
+      src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/c/c-original.svg"
+      alt="C"
+      width={80}
+      height={80}
+      style={{ objectFit: "contain" }}
+    />
+  ),
 };
+
+
 
 export default function Home() {
   const [code, setCode] = useState("");

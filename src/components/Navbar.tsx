@@ -50,7 +50,7 @@ export default function Navbar() {
                 <circle cx={39} cy={12} r={2} fill="#000" />
               </svg>
             </span>
-            <a href="#" className="no-underline">
+            <a href="" className="no-underline">
               <span className="text-2xl font-bold text-black tracking-tight">DecodeX</span>
             </a>
           </div>
