@@ -14,6 +14,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
+      
       {/* Avoid setting a static bg color here! */}
       <body className="font-sans antialiased">
         <ThemeProvider>{children}</ThemeProvider>
