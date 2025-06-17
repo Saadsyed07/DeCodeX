@@ -4,6 +4,7 @@ import Navbar from "@/components/Navbar";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
+
 // Animated grid lines background
 function GridLinesBackground() {
   return (
@@ -18,7 +19,6 @@ function GridLinesBackground() {
         animation: "gridMove 12s linear infinite",
       }}
     >
-      {/* Vertical lines */}
       {Array.from({ length: 11 }).map((_, i) => (
         <line
           key={`v${i}`}
@@ -30,7 +30,6 @@ function GridLinesBackground() {
           strokeWidth="0.3"
         />
       ))}
-      {/* Horizontal lines */}
       {Array.from({ length: 11 }).map((_, i) => (
         <line
           key={`h${i}`}
@@ -99,24 +98,44 @@ function HandCursor({ style }: { style?: React.CSSProperties }) {
   );
 }
 
+// For animated AI process (optional demo effect)
+const aiProcessSteps = [
+  "Analyzing code...",
+  "Understanding structure...",
+  "Generating explanation...",
+  "Finalizing..."
+];
+
 export default function Home() {
   // Animation states
   const [step, setStep] = useState(0);
-  // 0: nothing, 1: rainbow in, 2: icons in, 3: dropdown, 4: dropdown open, 5: editors in, 6: hand press explain, 7: done
+  // 0: nothing, 1: rainbow in, 2: icons in, 3: dropdown, 4: dropdown open, 5: editors in, 6: hand press explain, 7: AI processing, 8: done
 
   // For dropdown animation
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [dropdownValue, setDropdownValue] = useState("Python");
+  // For AI process
+  const [aiStep, setAiStep] = useState(0);
 
   // Step timing
   useEffect(() => {
     if (step < 7) {
       const timeout = setTimeout(() => setStep(step + 1), [900, 800, 1000, 1200, 900, 1100, 1200][step]);
       return () => clearTimeout(timeout);
+    } else if (step === 7) {
+      setAiStep(0);
+      const interval = setInterval(() => {
+        setAiStep((prev) => {
+          if (prev < aiProcessSteps.length - 1) return prev + 1;
+          clearInterval(interval);
+          setTimeout(() => setStep(8), 800);
+          return prev;
+        });
+      }, 850);
+      return () => clearInterval(interval);
     }
   }, [step]);
 
-  // Animate dropdown open/close
   useEffect(() => {
     if (step === 3) setDropdownOpen(true);
     if (step === 5) setDropdownOpen(false);
@@ -125,28 +144,15 @@ export default function Home() {
   return (
     <main className="min-h-screen w-full bg-gradient-to-br from-white via-blue-50 to-blue-100 grid grid-rows-[auto_1fr_auto] overflow-x-hidden relative">
       <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
-      {/* Animated grid lines */}
       <GridLinesBackground />
-      {/* Navbar */}
       <Navbar />
       {/* Hero Section */}
       <section className="flex flex-col items-center justify-center flex-1 text-center relative z-10">
-        {/* AI that */}
-        <motion.h1
-          initial={{ opacity: 0, y: -40 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: "easeOut" }}
-          className="text-6xl font-black mb-6"
-        >
+        <motion.h1 initial={{ opacity: 0, y: -40 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, ease: "easeOut" }} className="text-6xl font-black mb-6">
           AI that
         </motion.h1>
-        {/* Python code explainer card */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.3, duration: 0.7, type: "spring" }}
-          className="flex items-center justify-center bg-white rounded-2xl shadow-lg px-8 py-4 mb-6"
-        >
+        <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.3, duration: 0.7, type: "spring" }}
+          className="flex items-center justify-center bg-white rounded-2xl shadow-lg px-8 py-4 mb-6">
           <Image
             src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg"
             alt="python"
@@ -159,7 +165,6 @@ export default function Home() {
             print(<span className="text-green-600">"Explain's Code"</span>)
           </span>
         </motion.div>
-        {/* Gradient animated title */}
         <motion.h2
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
@@ -174,7 +179,6 @@ export default function Home() {
         >
           On Your FingerTips
         </motion.h2>
-        {/* Subtitle */}
         <motion.p
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -184,17 +188,22 @@ export default function Home() {
           AI code explanation made super simple to save you hours of time<br />
           from reading and understanding code in new languages or frameworks.
         </motion.p>
-        {/* Call to action */}
         <motion.a
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
+          whileHover={{
+            scale: 1.08,
+            boxShadow: "0 4px 32px 0 #a9a9f7cc",
+            backgroundColor: "#22223b",
+            color: "#fff"
+          }}
+          whileTap={{ scale: 0.96 }}
           transition={{ delay: 1.4, duration: 0.6, type: "spring" }}
           href="/explainer"
           className="mt-8 inline-block bg-black text-white px-8 py-4 rounded-xl text-lg font-bold shadow hover:bg-gray-900 transition-all"
         >
           Try Code Explainer!
         </motion.a>
-        {/* Subtle animated background effect */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 0.11 }}
@@ -205,7 +214,6 @@ export default function Home() {
           }}
         />
       </section>
-
       {/* Animated code explainer demo section */}
       <section
         className="flex items-center justify-center min-h-[90vh] w-full relative bg-gradient-to-br from-white via-blue-50 to-blue-100"
@@ -288,7 +296,6 @@ export default function Home() {
                     value={dropdownValue}
                     onChange={(e) => setDropdownValue(e.target.value)}
                     size={dropdownOpen ? LANGUAGES.length : 1}
-                    // VS Code/React: Use 'disabled' instead of 'readOnly' for select
                     disabled={!dropdownOpen}
                   >
                     {LANGUAGES.map((lang) => (
@@ -301,14 +308,14 @@ export default function Home() {
                   <AnimatePresence>
                     {(step === 3 || step === 4) && (
                       <motion.div
-                        initial={{ opacity: 0, x: -16, y: -16 }}
-                        animate={{ opacity: 1, x: 8, y: 8 }}
+                        initial={{ opacity: 0, x: 0, y: 0 }}
+                        animate={{ opacity: 1, x: 40, y: 10 }}
                         exit={{ opacity: 0 }}
                         transition={{ duration: 0.5 }}
                         style={{
                           position: "absolute",
-                          left: "140px",
-                          top: "-8px",
+                          left: "160px",
+                          top: "16px",
                         }}
                       >
                         <HandCursor />
@@ -386,15 +393,41 @@ export default function Home() {
             </div>
             <div className="flex-1 flex flex-col">
               <div className="font-mono text-xs text-gray-500 mb-1">AI Explanation</div>
-              <textarea
-                className={codeBoxStyle + " bg-gradient-to-br from-white to-blue-50"}
-                placeholder="AI-generated explanation will appear here"
-                defaultValue={step > 6 ?
-                  `This Python function, greet, outputs "Hello, World!" to the console when called. 
-It demonstrates a simple function definition and the use of the print statement.` : ""}
-                readOnly
-                style={{ height: 120, background: "#f9fafb" }}
-              />
+              <div className="relative">
+                {/* AI process animation */}
+                <AnimatePresence>
+                  {step === 7 && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      transition={{ duration: 0.4 }}
+                      className="absolute inset-0 flex flex-col items-center justify-center z-30 bg-gradient-to-br from-white/80 to-blue-100/70 rounded-xl"
+                      style={{ height: 120 }}
+                    >
+                      <div className="text-lg font-semibold text-blue-700 mb-2 animate-pulse">
+                        {aiProcessSteps[aiStep]}
+                      </div>
+                      <motion.div
+                        className="w-8 h-8 rounded-full border-4 border-blue-400 border-t-transparent animate-spin"
+                        style={{ borderTopColor: "#d46dda", borderRightColor: "#706cf8" }}
+                      />
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+                <textarea
+                  className={codeBoxStyle + " bg-gradient-to-br from-white to-blue-50"}
+                  placeholder="AI-generated explanation will appear here"
+                  value={
+                    step < 8
+                      ? ""
+                      : `This Python function, greet, outputs "Hello, World!" to the console when called. 
+It demonstrates a simple function definition and the use of the print statement.`
+                  }
+                  readOnly
+                  style={{ height: 120, background: "#f9fafb" }}
+                />
+              </div>
             </div>
           </motion.div>
           {/* Explain Button with hand animation */}
@@ -405,8 +438,6 @@ It demonstrates a simple function definition and the use of the print statement.
             className="w-full flex justify-center relative"
             style={{ marginTop: 28 }}
           >
-
-
             <Link
               href="/explainer"
               className="bg-black text-white px-8 py-2 rounded-lg text-lg font-bold shadow hover:bg-gray-900 transition-all"
@@ -420,7 +451,6 @@ It demonstrates a simple function definition and the use of the print statement.
             >
               Explain
             </Link>
-
             {/* Hand cursor for button */}
             <AnimatePresence>
               {step === 6 && (
@@ -429,6 +459,23 @@ It demonstrates a simple function definition and the use of the print statement.
                   animate={{ opacity: 1, x: 105, y: -22 }}
                   exit={{ opacity: 0 }}
                   transition={{ duration: 0.5 }}
+                  style={{
+                    position: "absolute",
+                    left: "50%",
+                    top: "-20px",
+                    zIndex: 30,
+                  }}
+                >
+                  <HandCursor />
+                </motion.div>
+              )}
+              {/* Hand moves to AI box during process */}
+              {step === 7 && (
+                <motion.div
+                  initial={{ opacity: 0, x: 0, y: 0 }}
+                  animate={{ opacity: 1, x: 320, y: -120 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.7 }}
                   style={{
                     position: "absolute",
                     left: "50%",
