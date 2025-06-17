@@ -157,7 +157,7 @@ export function CodeEditor({
       <div className="w-full rounded-t-2xl overflow-hidden bg-[#1a237e] border-b border-gray-200">
         <Editor
           width="100%"
-          height="40vh"
+          height="65vh"
           defaultLanguage={language}
           language={language}
           value={value}
