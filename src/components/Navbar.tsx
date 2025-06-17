@@ -66,7 +66,7 @@ export default function Navbar() {
                 <circle cx={39} cy={12} r={2} fill="#000" />
               </svg>
             </span>
-            <a href="/home" className="no-underline">
+            <a href="/" className="no-underline">
               <span className="text-2xl font-bold text-black dark:text-white tracking-tight">
                 DecodeX
               </span>
