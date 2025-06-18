@@ -6,10 +6,14 @@ import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { DotLottieReact } from '@lottiefiles/dotlottie-react';
 import { Copy, Download } from "lucide-react";
-
-// Dummy icons (replace with your real ones)
+import Footer from "@/components/Footer";
+// Dummy icons (replace with your own)
 const PYTHON_ICON = (
-  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg" alt="Python" className="w-14 h-14" />
+  <img
+    src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg"
+    alt="Python"
+    className="w-14 h-14"
+  />
 );
 const JS_ICON = (
   <div className="w-14 h-14 rounded-xl flex items-center justify-center bg-yellow-300 font-bold text-4xl text-black shadow">
@@ -18,9 +22,9 @@ const JS_ICON = (
 );
 
 const LANGUAGES = [
-  "C++", "Golang", "Java", "JavaScript", "Python", "R", "C", "Csharp", "Julia", "Perl", "Matlab",
-  "Kotlin", "PHP", "Ruby", "Rust", "TypeScript", "Lua", "SAS", "Fortran", "Lisp", "Scala",
-  "Assembly", "ActionScript", "Clojure", "CoffeeScript", "Dart", "COBOL", "Elixir", "-"
+  { value: "python", label: "Python" },
+  { value: "javascript", label: "JavaScript" },
+  // Add more as needed
 ];
 
 const ICONS: Record<string, string> = {
@@ -115,8 +119,6 @@ const aiProcessSteps = [
   "Generating explanation...",
   "Finalizing..."
 ];
-
-const HERO_ILLUSTRATION = "/your-illustration.png"; // <-- Replace with your image path
 
 function AnimatedGridBG() {
   return (
@@ -303,6 +305,7 @@ export function AnimatedGradientText({ children }: { children: React.ReactNode }
   );
 }
 
+
 function WhyUseCodeConvert() {
   return (
     <section className="w-full bg-gradient-to-tr from-[#e6f0f5] via-[#f6f6fa] to-[#f9f3ee] py-24 px-2 md:px-0 relative">
@@ -351,17 +354,18 @@ function WhyUseCodeConvert() {
 
 // MAIN PAGE COMPONENT
 export default function Home() {
-  // Animation states
+  // Animation states for demo
   const [step, setStep] = useState(0);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [dropdownValue, setDropdownValue] = useState("Python");
   const [aiStep, setAiStep] = useState(0);
 
-  // For code convert animation
+  // For code convert section
   const [fromLang, setFromLang] = useState("python");
   const [toLang, setToLang] = useState("javascript");
   const [input, setInput] = useState("");
   const [output, setOutput] = useState("");
+  const [isConverting, setIsConverting] = useState(false);
 
   // Copy and download handlers
   const handleCopy = () => navigator.clipboard.writeText(output);
@@ -375,7 +379,20 @@ export default function Home() {
     URL.revokeObjectURL(url);
   };
 
-  // Step timing
+  // Animation: Show converting for 1.5s before displaying output
+  const handleConvert = () => {
+    setIsConverting(true);
+    setTimeout(() => {
+      setOutput(
+        input
+          ? `// Converted from ${fromLang} to ${toLang}\n${input}`
+          : ""
+      );
+      setIsConverting(false);
+    }, 1500);
+  };
+
+  // Step timing for demo section
   useEffect(() => {
     if (step < 7) {
       const timeout = setTimeout(() => setStep(step + 1), [900, 800, 1000, 1200, 900, 1100, 1200][step]);
@@ -559,8 +576,8 @@ export default function Home() {
                       disabled={!dropdownOpen}
                     >
                       {LANGUAGES.map((lang) => (
-                        <option key={lang} value={lang}>
-                          {lang}
+                        <option key={lang.value} value={lang.label}>
+                          {lang.label}
                         </option>
                       ))}
                     </motion.select>
@@ -789,214 +806,237 @@ It demonstrates a simple function definition and the use of the print statement.
           </svg>
         </section>
       </main>
-    <WhyUseCodeConvert />
-
-<section className="relative min-h-screen w-full flex items-center justify-center bg-gradient-to-br from-[#f9f5f0] to-[#efe6de] overflow-x-hidden">
-  <AnimatedGridBG />
-
-  <div className="flex flex-col md:flex-row items-center justify-center w-full min-h-[70vh] px-4 md:px-12 z-10 relative">
-
-    <SparkleSVG />
-
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#f7fafc] to-[#dbeafe] relative px-2 py-10">
-      <div className="relative z-10">
-        <div className="animate-border-video rounded-3xl p-[3px] sm:p-[4px] shadow-xl">
-          <div className="bg-[#ece2d6] rounded-3xl px-4 py-8 sm:px-10 sm:py-12 w-[95vw] max-w-3xl md:max-w-4xl flex flex-col items-center shadow-md">
-            {/* Language Selectors */}
-            <div className="flex flex-wrap gap-6 justify-evenly items-center w-full mb-6">
-              <div className="flex flex-col items-center gap-2">
-                {PYTHON_ICON}
-                <select
-                  className="mt-2 px-4 py-2 rounded-xl bg-white shadow font-semibold text-gray-800 text-base focus:ring-2 focus:ring-pink-300"
-                  value={fromLang}
-                  onChange={e => setFromLang(e.target.value)}
-                >
-                  <option value="python">Python</option>
-                  <option value="javascript">JavaScript</option>
-                </select>
-              </div>
-              <div className="flex flex-col items-center gap-2">
-                {JS_ICON}
-                <select
-                  className="mt-2 px-4 py-2 rounded-xl bg-white shadow font-semibold text-gray-800 text-base focus:ring-2 focus:ring-yellow-300"
-                  value={toLang}
-                  onChange={e => setToLang(e.target.value)}
-                >
-                  <option value="javascript">JavaScript</option>
-                  <option value="python">Python</option>
-                </select>
-              </div>
+      <WhyUseCodeConvert />
+      {/* Code Converter Section */}
+      <section
+        className="flex items-center justify-center min-h-[80vh] w-full relative bg-gradient-to-br from-white via-blue-50 to-blue-100"
+        style={{ overflow: "hidden" }}
+      >
+        {/* Rainbow border background */}
+        <motion.div
+          initial={{ scale: 0.85, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ type: "spring", duration: 1.1 }}
+          className="absolute"
+          style={{
+            left: "50%",
+            top: "50%",
+            width: 950,
+            height: 520,
+            transform: "translate(-50%, -50%)",
+            borderRadius: 32,
+            boxShadow: rainbowBoxShadow,
+            zIndex: 0,
+          }}
+        />
+        {/* Main card */}
+        <motion.div
+          initial={{ scale: 0.92, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ type: "spring", delay: 0.2, duration: 1 }}
+          className="relative bg-[#f5ede6] rounded-3xl shadow-2xl px-10 py-8 flex flex-col items-center"
+          style={{
+            width: 900,
+            minHeight: 480,
+            zIndex: 10,
+          }}
+        >
+          <div className="flex justify-center gap-8 mb-6 w-full">
+            {/* From language */}
+            <div className="flex flex-col items-center">
+              <span className="mb-1 font-bold text-lg">From</span>
+              <select
+                className="px-4 py-2 text-base rounded-lg border border-gray-300 font-semibold shadow"
+                value={fromLang}
+                onChange={e => setFromLang(e.target.value)}
+                disabled={isConverting}
+              >
+                {LANGUAGES.map(lang => (
+                  <option key={lang.value} value={lang.value}>{lang.label}</option>
+                ))}
+              </select>
             </div>
-
-            {/* Upload / Drop Instruction */}
-            <div className="w-full mb-4">
-              <div className="border-dashed border-2 border-gray-400 p-4 rounded-lg text-center text-gray-700 text-base font-medium shadow-sm">
-                Drop your input code file here, or click to select the file,
-                <br />
-                or type in the input code below.
-              </div>
+            {/* To language */}
+            <div className="flex flex-col items-center">
+              <span className="mb-1 font-bold text-lg">To</span>
+              <select
+                className="px-4 py-2 text-base rounded-lg border border-gray-300 font-semibold shadow"
+                value={toLang}
+                onChange={e => setToLang(e.target.value)}
+                disabled={isConverting}
+              >
+                {LANGUAGES.map(lang => (
+                  <option key={lang.value} value={lang.value}>{lang.label}</option>
+                ))}
+              </select>
             </div>
-
-            {/* Code Input and Output */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full mt-2 mb-3">
-              {/* Input Area */}
-              <div>
-                <div className="text-xs px-2 py-1 text-gray-500">Your input code here</div>
-                <textarea
-                  className="w-full h-48 md:h-56 resize-none rounded-lg border border-gray-200 shadow bg-white px-3 py-2 text-gray-800 font-mono focus:outline-none focus:ring-2 focus:ring-blue-200 transition"
-                  value={input}
-                  onChange={e => setInput(e.target.value)}
-                  placeholder="Your input code here"
-                  spellCheck={false}
-                />
-              </div>
-
-              {/* Output Area */}
-              <div>
-                <div className="text-xs px-2 py-1 text-gray-500">Converted code</div>
-                <div className="relative">
-                  <textarea
-                    className="w-full h-48 md:h-56 resize-none rounded-lg border border-gray-200 shadow bg-white px-3 py-2 text-gray-800 font-mono"
-                    value={output}
-                    readOnly
-                    placeholder="Converted code will appear here"
-                    spellCheck={false}
-                  />
-                  <div className="absolute bottom-2 right-2 flex gap-2">
-                    <button
-                      aria-label="Copy"
-                      onClick={handleCopy}
-                      className="p-1 rounded hover:bg-gray-100 transition"
-                    >
-                      <Copy className="w-5 h-5" />
-                    </button>
-                    <button
-                      aria-label="Download"
-                      onClick={handleDownload}
-                      className="p-1 rounded hover:bg-gray-100 transition"
-                    >
-                      <Download className="w-5 h-5" />
-                    </button>
+          </div>
+          <div className="flex gap-10 w-full">
+            {/* Input */}
+            <div className="flex-1 flex flex-col">
+              <div className="text-xs text-gray-500 mb-1">Input</div>
+              <textarea
+                className="rounded-xl bg-white border border-gray-300 shadow-inner min-h-[150px] w-full p-2 font-mono text-sm resize-none outline-none"
+                placeholder="Paste or type your code here"
+                value={input}
+                onChange={e => setInput(e.target.value)}
+                disabled={isConverting}
+                style={{ height: 140 }}
+              />
+            </div>
+            {/* Output */}
+            <div className="flex-1 flex flex-col">
+              <div className="text-xs text-gray-500 mb-1">Output</div>
+              <div className="relative">
+                {isConverting && (
+                  <div className="absolute inset-0 z-20 bg-gradient-to-br from-cyan-200/50 to-pink-200/60 flex flex-col items-center justify-center rounded-lg backdrop-blur-sm">
+                    <div className="flex items-center gap-2 mb-2">
+                      <motion.span
+                        className="w-5 h-5 border-4 border-pink-400 border-t-transparent rounded-full"
+                        animate={{ rotate: 360 }}
+                        transition={{ repeat: Infinity, duration: 1.2, ease: "linear" }}
+                      />
+                      <span className="font-bold text-pink-700 text-lg animate-pulse">Converting...</span>
+                    </div>
+                    <span className="text-xs text-gray-500">AI is converting your code</span>
                   </div>
+                )}
+                <textarea
+                  className="rounded-xl bg-white border border-gray-300 shadow-inner min-h-[150px] w-full p-2 font-mono text-sm resize-none outline-none"
+                  value={output}
+                  readOnly
+                  placeholder="Converted code will appear here"
+                  style={{ height: 140 }}
+                />
+                <div className="absolute bottom-2 right-2 flex gap-2 z-10">
+                  <button
+                    aria-label="Copy"
+                    onClick={handleCopy}
+                    className="p-1 rounded hover:bg-cyan-100/70 transition"
+                    disabled={!output || isConverting}
+                  >
+                    <Copy className="w-5 h-5" />
+                  </button>
+                  <button
+                    aria-label="Download"
+                    onClick={handleDownload}
+                    className="p-1 rounded hover:bg-pink-100/70 transition"
+                    disabled={!output || isConverting}
+                  >
+                    <Download className="w-5 h-5" />
+                  </button>
                 </div>
               </div>
             </div>
-
-            {/* Convert Button */}
-            <button
-              className="mt-2 px-6 py-2 rounded-lg bg-black text-white font-semibold shadow transition hover:bg-gray-800 active:scale-95"
-              onClick={() => setOutput(input ? `// Converted from ${fromLang} to ${toLang}\n${input}` : "")}
-            >
-              Convert
-            </button>
           </div>
-        </div>
-      </div>
-
-      {/* Animation Style for border spin effect */}
-      <style>
-        {`
-          .animate-border-video {
-            background: conic-gradient(
-              from 180deg at top left,
-              #ff80b5, #f7d070, #7de9a5, #7ad0ff, #a384fa, #ff80b5
-            );
-            animation: border-spin 6s linear infinite;
-          }
-          @keyframes border-spin {
-            0% { filter: hue-rotate(0deg); }
-            100% { filter: hue-rotate(360deg); }
-          }
-        `}
-      </style>
-    </div>
-
-    {/* Center: Lottie Animation */}
-    <motion.div
-      initial={{ opacity: 0, x: -60 }}
-      animate={{ opacity: 1, x: 0 }}
-      transition={{ duration: 1, type: "spring" }}
-      className="w-full md:w-1/2 flex justify-center mb-12 md:mb-0"
-    >
-      <motion.div
-        animate={{ y: [0, -8, 0] }}
-        transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
-        className="flex items-center justify-center"
-        style={{ width: 340, height: 340, maxWidth: "100%" }}
-      >
-        <DotLottieReact
-          src="https://lottie.host/405c7e5e-4146-40d9-8cc6-aae02a60f7c7/75Cocyut3k.lottie"
-          loop
-          autoplay
-          style={{
-            width: 320,
-            height: 320,
-            maxWidth: "100%",
-            maxHeight: "100%",
-            display: "block"
-          }}
-        />
-      </motion.div>
-    </motion.div>
-
-    {/* Right: CTA Section */}
-    <motion.div
-      initial={{ opacity: 0, x: 60 }}
-      animate={{ opacity: 1, x: 0 }}
-      transition={{ duration: 1, delay: 0.3, type: "spring" }}
-      className="w-full md:w-1/2 flex flex-col items-center md:items-start text-center md:text-left"
-    >
-      <motion.h1
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.6, duration: 0.7 }}
-        className="text-3xl md:text-5xl font-black mb-3"
-      >
-        Get Started Today for
-        <br />
-        <motion.span
-          initial={{ backgroundPosition: "0% 50%" }}
-          animate={{ backgroundPosition: "100% 50%" }}
-          transition={{ repeat: Infinity, duration: 4, ease: "linear" }}
-          className="block text-4xl md:text-6xl font-extrabold bg-gradient-to-r from-purple-500 via-pink-400 to-blue-400 bg-[length:200%_200%] bg-clip-text text-transparent"
-        >
-          FREE!
-        </motion.span>
-      </motion.h1>
-      <motion.p
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.9, duration: 0.7 }}
-        className="text-lg md:text-2xl text-gray-500 mb-6"
-      >
-        No credit card or login required.
-      </motion.p>
-      <motion.div
-        initial={{ opacity: 0, y: 18 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 1.2, duration: 0.7, type: "spring" }}
-      >
-        <Link href="/convert" passHref>
+          {/* Convert Button */}
           <motion.button
+            className="mt-8 px-10 py-3 rounded-xl bg-gradient-to-r from-pink-500 via-cyan-400 to-yellow-300 text-white font-bold text-lg shadow-lg hover:scale-105 active:scale-95 transition focus:outline-none"
+            onClick={handleConvert}
+            disabled={isConverting}
             whileHover={{
               scale: 1.08,
+              boxShadow: "0 8px 32px 0 #d46dda",
               background: "linear-gradient(90deg,#d46dda 30%,#706cf8 80%)",
               color: "#fff",
-              boxShadow: "0 4px 32px 0 #a9a9f7cc",
             }}
-            whileTap={{ scale: 0.95 }}
-            className="bg-black text-white px-8 py-4 rounded-xl text-lg font-bold shadow hover:bg-gradient-to-r hover:from-purple-500 hover:to-blue-400 transition-all focus:outline-none focus:ring-2 focus:ring-purple-400"
-            style={{
-              transition: "all 0.2s cubic-bezier(.4,0,.2,1)"
-            }}
+            animate={isConverting ? { scale: [1, 1.05, 1], opacity: [1, 0.7, 1] } : {}}
+            transition={{ duration: 0.9, repeat: isConverting ? Infinity : 0, ease: "easeInOut" }}
           >
-            Try for free!
+            {isConverting ? "Converting..." : "Convert"}
           </motion.button>
-        </Link>
-      </motion.div>
-    </motion.div>
-  </div>
-</section>
+        </motion.div>
+      </section>
+      <section className="relative min-h-screen w-full flex items-center justify-center bg-gradient-to-br from-[#f9f5f0] to-[#efe6de] overflow-x-hidden">
+        <AnimatedGridBG />
+        <div className="flex flex-col md:flex-row items-center justify-center w-full min-h-[70vh] px-4 md:px-12 z-10 relative">
+          <SparkleSVG />
+          {/* Center: Lottie Animation */}
+          <motion.div
+            initial={{ opacity: 0, x: -60 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 1, type: "spring" }}
+            className="w-full md:w-1/2 flex justify-center mb-12 md:mb-0"
+          >
+            <motion.div
+              animate={{ y: [0, -8, 0] }}
+              transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
+              className="flex items-center justify-center"
+              style={{ width: 340, height: 340, maxWidth: "100%" }}
+            >
+              <DotLottieReact
+                src="https://lottie.host/405c7e5e-4146-40d9-8cc6-aae02a60f7c7/75Cocyut3k.lottie"
+                loop
+                autoplay
+                style={{
+                  width: 320,
+                  height: 320,
+                  maxWidth: "100%",
+                  maxHeight: "100%",
+                  display: "block"
+                }}
+              />
+            </motion.div>
+          </motion.div>
+          {/* Right: CTA Section */}
+          <motion.div
+            initial={{ opacity: 0, x: 60 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 1, delay: 0.3, type: "spring" }}
+            className="w-full md:w-1/2 flex flex-col items-center md:items-start text-center md:text-left"
+          >
+            <motion.h1
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.6, duration: 0.7 }}
+              className="text-3xl md:text-5xl font-black mb-3"
+            >
+              Get Started Today for
+              <br />
+              <motion.span
+                initial={{ backgroundPosition: "0% 50%" }}
+                animate={{ backgroundPosition: "100% 50%" }}
+                transition={{ repeat: Infinity, duration: 4, ease: "linear" }}
+                className="block text-4xl md:text-6xl font-extrabold bg-gradient-to-r from-purple-500 via-pink-400 to-blue-400 bg-[length:200%_200%] bg-clip-text text-transparent"
+              >
+                FREE!
+              </motion.span>
+            </motion.h1>
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.9, duration: 0.7 }}
+              className="text-lg md:text-2xl text-gray-500 mb-6"
+            >
+              No credit card or login required.
+            </motion.p>
+            <motion.div
+              initial={{ opacity: 0, y: 18 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 1.2, duration: 0.7, type: "spring" }}
+            >
+              <Link href="/convert" passHref>
+                <motion.button
+                  whileHover={{
+                    scale: 1.08,
+                    background: "linear-gradient(90deg,#d46dda 30%,#706cf8 80%)",
+                    color: "#fff",
+                    boxShadow: "0 4px 32px 0 #a9a9f7cc",
+                  }}
+                  whileTap={{ scale: 0.95 }}
+                  className="bg-black text-white px-8 py-4 rounded-xl text-lg font-bold shadow hover:bg-gradient-to-r hover:from-purple-500 hover:to-blue-400 transition-all focus:outline-none focus:ring-2 focus:ring-purple-400"
+                  style={{
+                    transition: "all 0.2s cubic-bezier(.4,0,.2,1)"
+                  }}
+                >
+                  Try for free!
+                </motion.button>
+              </Link>
+            </motion.div>
+          </motion.div>
+        </div>
+      </section>
+  <Footer/>
     </div>
   );
 }

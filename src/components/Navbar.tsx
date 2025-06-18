@@ -24,8 +24,18 @@ export default function Navbar() {
     localStorage.setItem("theme", newTheme);
   };
 
+  // Prevent body content from being hidden under the sticky navbar
+  // by adding a top padding equal to navbar height on the body/html (optional, or use with layout)
+  useEffect(() => {
+    const navbarHeight = 64; // 16 * 4 (h-16 => 64px)
+    document.body.style.paddingTop = `${navbarHeight}px`;
+    return () => {
+      document.body.style.paddingTop = "";
+    };
+  }, []);
+
   return (
-    <nav className="w-full bg-[#eee7df] dark:bg-[#1a2332] shadow-sm transition-colors duration-300">
+    <nav className="fixed top-0 left-0 w-full z-50 bg-[#eee7df] dark:bg-[#1a2332] shadow-sm transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-8">
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
@@ -81,24 +91,6 @@ export default function Navbar() {
             <a href="/explainer" className="text-lg font-semibold text-black dark:text-white hover:text-gray-700 dark:hover:text-gray-300 transition-colors">
               CodeExplainer
             </a>
-            <a href="" className="px-5 py-2 rounded-xl border border-black dark:border-white text-lg text-gray-700 dark:text-gray-200 hover:bg-black/10 dark:hover:bg-white/10 transition-colors">
-              Login
-            </a>
-            <button
-              onClick={toggleTheme}
-              aria-label="Toggle theme"
-              className="flex items-center gap-2 px-4 py-2 rounded-md bg-[#f4f5fa] text-gray-900 hover:bg-gray-200 dark:bg-[#19253a] dark:text-gray-100 dark:hover:bg-[#22345a] transition-colors"
-            >
-              {theme === "light" ? (
-                <>
-                  <Moon className="w-4 h-4" /> Dark Mode
-                </>
-              ) : (
-                <>
-                  <Sun className="w-4 h-4" /> Light Mode
-                </>
-              )}
-            </button>
           </div>
 
           {/* Mobile Menu Button */}
@@ -112,7 +104,7 @@ export default function Navbar() {
         {/* Mobile Menu */}
         {menuOpen && (
           <div className="md:hidden mt-2 flex flex-col space-y-3 pb-4 px-4 bg-[#eee7df] dark:bg-[#1a2332] rounded-lg shadow transition-colors">
-            <a href="#" className="text-base font-medium text-black dark:text-white hover:text-gray-700 dark:hover:text-gray-300 transition-colors">
+            <a href="/convert" className="text-base font-medium text-black dark:text-white hover:text-gray-700 dark:hover:text-gray-300 transition-colors">
               CodeConverter
             </a>
             <a href="/explainer" className="text-base font-medium text-black dark:text-white hover:text-gray-700 dark:hover:text-gray-300 transition-colors">
