@@ -75,13 +75,13 @@ export default function Navbar() {
 
           {/* Desktop Menu */}
           <div className="hidden md:flex items-center gap-6">
-            <a href="#" className="text-lg font-semibold text-black dark:text-white hover:text-gray-700 dark:hover:text-gray-300 transition-colors">
+            <a href="/convert" className="text-lg font-semibold text-black dark:text-white hover:text-gray-700 dark:hover:text-gray-300 transition-colors">
               CodeConverter
             </a>
             <a href="/explainer" className="text-lg font-semibold text-black dark:text-white hover:text-gray-700 dark:hover:text-gray-300 transition-colors">
               CodeExplainer
             </a>
-            <a href="#" className="px-5 py-2 rounded-xl border border-black dark:border-white text-lg text-gray-700 dark:text-gray-200 hover:bg-black/10 dark:hover:bg-white/10 transition-colors">
+            <a href="" className="px-5 py-2 rounded-xl border border-black dark:border-white text-lg text-gray-700 dark:text-gray-200 hover:bg-black/10 dark:hover:bg-white/10 transition-colors">
               Login
             </a>
             <button

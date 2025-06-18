@@ -5,8 +5,35 @@ import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { DotLottieReact } from '@lottiefiles/dotlottie-react';
+import { Copy, Download } from "lucide-react";
 
-// Animated grid lines background
+// Dummy icons (replace with your real ones)
+const PYTHON_ICON = (
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg" alt="Python" className="w-14 h-14" />
+);
+const JS_ICON = (
+  <div className="w-14 h-14 rounded-xl flex items-center justify-center bg-yellow-300 font-bold text-4xl text-black shadow">
+    JS
+  </div>
+);
+
+const LANGUAGES = [
+  "C++", "Golang", "Java", "JavaScript", "Python", "R", "C", "Csharp", "Julia", "Perl", "Matlab",
+  "Kotlin", "PHP", "Ruby", "Rust", "TypeScript", "Lua", "SAS", "Fortran", "Lisp", "Scala",
+  "Assembly", "ActionScript", "Clojure", "CoffeeScript", "Dart", "COBOL", "Elixir", "-"
+];
+
+const ICONS: Record<string, string> = {
+  Python: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg",
+  JavaScript: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg"
+};
+
+const codeBoxStyle =
+  "rounded-xl bg-white border border-gray-300 shadow-inner min-h-[150px] w-full p-2 font-mono text-sm resize-none outline-none";
+
+const rainbowBoxShadow =
+  "0 0 0 4px #e0e0e0, 0 0 16px 6px #d46dda, 0 0 32px 10px #706cf8, 0 0 48px 18px #7ee8fa";
+
 function GridLinesBackground() {
   return (
     <svg
@@ -54,24 +81,6 @@ function GridLinesBackground() {
   );
 }
 
-const LANGUAGES = [
-  "C++", "Golang", "Java", "JavaScript", "Python", "R", "C", "Csharp", "Julia", "Perl", "Matlab",
-  "Kotlin", "PHP", "Ruby", "Rust", "TypeScript", "Lua", "SAS", "Fortran", "Lisp", "Scala",
-  "Assembly", "ActionScript", "Clojure", "CoffeeScript", "Dart", "COBOL", "Elixir", "-"
-];
-
-const ICONS: Record<string, string> = {
-  Python: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg",
-  JavaScript: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg"
-};
-
-const codeBoxStyle =
-  "rounded-xl bg-white border border-gray-300 shadow-inner min-h-[150px] w-full p-2 font-mono text-sm resize-none outline-none";
-
-const rainbowBoxShadow =
-  "0 0 0 4px #e0e0e0, 0 0 16px 6px #d46dda, 0 0 32px 10px #706cf8, 0 0 48px 18px #7ee8fa";
-
-// SVG hand cursor for animation
 function HandCursor({ style }: { style?: React.CSSProperties }) {
   return (
     <svg
@@ -100,7 +109,6 @@ function HandCursor({ style }: { style?: React.CSSProperties }) {
   );
 }
 
-// For animated AI process (optional demo effect)
 const aiProcessSteps = [
   "Analyzing code...",
   "Understanding structure...",
@@ -108,7 +116,6 @@ const aiProcessSteps = [
   "Finalizing..."
 ];
 
-// New Section Illustration
 const HERO_ILLUSTRATION = "/your-illustration.png"; // <-- Replace with your image path
 
 function AnimatedGridBG() {
@@ -201,7 +208,6 @@ function SparkleSVG() {
   );
 }
 
-// Why Use Code Convert Section
 const features = [
   {
     icon: (
@@ -211,7 +217,6 @@ const features = [
         animate={{ scale: [0.8, 1.12, 1], rotate: [0, 12, 0] }}
         transition={{ repeat: Infinity, duration: 2, repeatType: "loop", ease: "easeInOut" }}
       >
-        {/* Target / bullseye icon */}
         <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2">
           <circle cx="12" cy="12" r="9" stroke="currentColor" />
           <circle cx="12" cy="12" r="4" stroke="currentColor" />
@@ -230,7 +235,6 @@ const features = [
         animate={{ scale: [0.8, 1.12, 1], rotate: [0, -12, 0] }}
         transition={{ repeat: Infinity, duration: 2.2, repeatType: "loop", ease: "easeInOut", delay: 0.15 }}
       >
-        {/* Lightning bolt icon */}
         <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2">
           <polyline points="13 3 7 14 13 14 11 21 17 10 11 10 13 3" fill="none" />
           <polyline points="13 3 7 14 13 14 11 21" fill="none" />
@@ -249,7 +253,6 @@ const features = [
         animate={{ scale: [0.8, 1.12, 1], rotate: [0, 8, 0] }}
         transition={{ repeat: Infinity, duration: 2.3, repeatType: "loop", ease: "easeInOut", delay: 0.1 }}
       >
-        {/* Infinity icon */}
         <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2">
           <path d="M9.5 12c1.5-2 4.5-2 6 0s-1.5 4-3 4-4.5-2-6-4 1.5-4 3-4 4.5 2 6 4" />
         </svg>
@@ -266,7 +269,6 @@ const features = [
         animate={{ scale: [0.8, 1.16, 1], rotate: [0, -8, 0] }}
         transition={{ repeat: Infinity, duration: 2.4, repeatType: "loop", ease: "easeInOut", delay: 0.2 }}
       >
-        {/* Shield icon */}
         <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2">
           <path d="M12 3l7 4v5c0 5-4.5 9-7 9s-7-4-7-9V7l7-4z" />
           <circle cx="12" cy="12" r="2" fill="currentColor" />
@@ -278,7 +280,6 @@ const features = [
   }
 ];
 
-// Usage: <AnimatedGradientText>Code Convert</AnimatedGradientText>
 export function AnimatedGradientText({ children }: { children: React.ReactNode }) {
   return (
     <motion.span
@@ -294,7 +295,6 @@ export function AnimatedGradientText({ children }: { children: React.ReactNode }
         backgroundClip: "text",
         color: "transparent",
         display: "inline-block",
-        // For smooth animation:
         backgroundPosition: "0% 50%",
       }}
     >
@@ -302,6 +302,7 @@ export function AnimatedGradientText({ children }: { children: React.ReactNode }
     </motion.span>
   );
 }
+
 function WhyUseCodeConvert() {
   return (
     <section className="w-full bg-gradient-to-tr from-[#e6f0f5] via-[#f6f6fa] to-[#f9f3ee] py-24 px-2 md:px-0 relative">
@@ -355,6 +356,24 @@ export default function Home() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [dropdownValue, setDropdownValue] = useState("Python");
   const [aiStep, setAiStep] = useState(0);
+
+  // For code convert animation
+  const [fromLang, setFromLang] = useState("python");
+  const [toLang, setToLang] = useState("javascript");
+  const [input, setInput] = useState("");
+  const [output, setOutput] = useState("");
+
+  // Copy and download handlers
+  const handleCopy = () => navigator.clipboard.writeText(output);
+  const handleDownload = () => {
+    const blob = new Blob([output], { type: "text/plain" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `converted.${toLang === "python" ? "py" : toLang === "javascript" ? "js" : "txt"}`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
 
   // Step timing
   useEffect(() => {
@@ -635,7 +654,6 @@ export default function Home() {
               <div className="flex-1 flex flex-col">
                 <div className="font-mono text-xs text-gray-500 mb-1">AI Explanation</div>
                 <div className="relative">
-                  {/* AI process animation */}
                   <AnimatePresence>
                     {step === 7 && (
                       <motion.div
@@ -671,7 +689,6 @@ It demonstrates a simple function definition and the use of the print statement.
                 </div>
               </div>
             </motion.div>
-            {/* Explain Button with hand animation */}
             <motion.div
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: step > 5 ? 1 : 0, y: step > 5 ? 0 : 16 }}
@@ -692,7 +709,6 @@ It demonstrates a simple function definition and the use of the print statement.
               >
                 Explain
               </Link>
-              {/* Hand cursor for button */}
               <AnimatePresence>
                 {step === 6 && (
                   <motion.div
@@ -710,7 +726,6 @@ It demonstrates a simple function definition and the use of the print statement.
                     <HandCursor />
                   </motion.div>
                 )}
-                {/* Hand moves to AI box during process */}
                 {step === 7 && (
                   <motion.div
                     initial={{ opacity: 0, x: 0, y: 0 }}
@@ -730,7 +745,6 @@ It demonstrates a simple function definition and the use of the print statement.
               </AnimatePresence>
             </motion.div>
           </motion.div>
-          {/* Grid lines BG for this section */}
           <svg
             className="absolute inset-0 w-full h-full pointer-events-none -z-20"
             width="100%"
@@ -775,14 +789,129 @@ It demonstrates a simple function definition and the use of the print statement.
           </svg>
         </section>
       </main>
-      {/* ==== WHY USE CODE CONVERT SECTION ==== */}
-       <WhyUseCodeConvert />
-      {/* ==== NEW GET STARTED SECTION BELOW ==== */}
-     <section className="relative min-h-screen w-full flex items-center justify-center bg-gradient-to-br from-[#f9f5f0] to-[#efe6de] overflow-x-hidden">
+    <WhyUseCodeConvert />
+
+<section className="relative min-h-screen w-full flex items-center justify-center bg-gradient-to-br from-[#f9f5f0] to-[#efe6de] overflow-x-hidden">
   <AnimatedGridBG />
+
   <div className="flex flex-col md:flex-row items-center justify-center w-full min-h-[70vh] px-4 md:px-12 z-10 relative">
+
     <SparkleSVG />
-    {/* Left Illustration */}
+
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#f7fafc] to-[#dbeafe] relative px-2 py-10">
+      <div className="relative z-10">
+        <div className="animate-border-video rounded-3xl p-[3px] sm:p-[4px] shadow-xl">
+          <div className="bg-[#ece2d6] rounded-3xl px-4 py-8 sm:px-10 sm:py-12 w-[95vw] max-w-3xl md:max-w-4xl flex flex-col items-center shadow-md">
+            {/* Language Selectors */}
+            <div className="flex flex-wrap gap-6 justify-evenly items-center w-full mb-6">
+              <div className="flex flex-col items-center gap-2">
+                {PYTHON_ICON}
+                <select
+                  className="mt-2 px-4 py-2 rounded-xl bg-white shadow font-semibold text-gray-800 text-base focus:ring-2 focus:ring-pink-300"
+                  value={fromLang}
+                  onChange={e => setFromLang(e.target.value)}
+                >
+                  <option value="python">Python</option>
+                  <option value="javascript">JavaScript</option>
+                </select>
+              </div>
+              <div className="flex flex-col items-center gap-2">
+                {JS_ICON}
+                <select
+                  className="mt-2 px-4 py-2 rounded-xl bg-white shadow font-semibold text-gray-800 text-base focus:ring-2 focus:ring-yellow-300"
+                  value={toLang}
+                  onChange={e => setToLang(e.target.value)}
+                >
+                  <option value="javascript">JavaScript</option>
+                  <option value="python">Python</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Upload / Drop Instruction */}
+            <div className="w-full mb-4">
+              <div className="border-dashed border-2 border-gray-400 p-4 rounded-lg text-center text-gray-700 text-base font-medium shadow-sm">
+                Drop your input code file here, or click to select the file,
+                <br />
+                or type in the input code below.
+              </div>
+            </div>
+
+            {/* Code Input and Output */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full mt-2 mb-3">
+              {/* Input Area */}
+              <div>
+                <div className="text-xs px-2 py-1 text-gray-500">Your input code here</div>
+                <textarea
+                  className="w-full h-48 md:h-56 resize-none rounded-lg border border-gray-200 shadow bg-white px-3 py-2 text-gray-800 font-mono focus:outline-none focus:ring-2 focus:ring-blue-200 transition"
+                  value={input}
+                  onChange={e => setInput(e.target.value)}
+                  placeholder="Your input code here"
+                  spellCheck={false}
+                />
+              </div>
+
+              {/* Output Area */}
+              <div>
+                <div className="text-xs px-2 py-1 text-gray-500">Converted code</div>
+                <div className="relative">
+                  <textarea
+                    className="w-full h-48 md:h-56 resize-none rounded-lg border border-gray-200 shadow bg-white px-3 py-2 text-gray-800 font-mono"
+                    value={output}
+                    readOnly
+                    placeholder="Converted code will appear here"
+                    spellCheck={false}
+                  />
+                  <div className="absolute bottom-2 right-2 flex gap-2">
+                    <button
+                      aria-label="Copy"
+                      onClick={handleCopy}
+                      className="p-1 rounded hover:bg-gray-100 transition"
+                    >
+                      <Copy className="w-5 h-5" />
+                    </button>
+                    <button
+                      aria-label="Download"
+                      onClick={handleDownload}
+                      className="p-1 rounded hover:bg-gray-100 transition"
+                    >
+                      <Download className="w-5 h-5" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Convert Button */}
+            <button
+              className="mt-2 px-6 py-2 rounded-lg bg-black text-white font-semibold shadow transition hover:bg-gray-800 active:scale-95"
+              onClick={() => setOutput(input ? `// Converted from ${fromLang} to ${toLang}\n${input}` : "")}
+            >
+              Convert
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Animation Style for border spin effect */}
+      <style>
+        {`
+          .animate-border-video {
+            background: conic-gradient(
+              from 180deg at top left,
+              #ff80b5, #f7d070, #7de9a5, #7ad0ff, #a384fa, #ff80b5
+            );
+            animation: border-spin 6s linear infinite;
+          }
+          @keyframes border-spin {
+            0% { filter: hue-rotate(0deg); }
+            100% { filter: hue-rotate(360deg); }
+          }
+        `}
+      </style>
+    </div>
+
+    {/* Center: Lottie Animation */}
     <motion.div
       initial={{ opacity: 0, x: -60 }}
       animate={{ opacity: 1, x: 0 }}
@@ -793,15 +922,15 @@ It demonstrates a simple function definition and the use of the print statement.
         animate={{ y: [0, -8, 0] }}
         transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
         className="flex items-center justify-center"
-        style={{ width: 340, height: 340, maxWidth: "100%" }} // Set explicit width/height here
+        style={{ width: 340, height: 340, maxWidth: "100%" }}
       >
         <DotLottieReact
           src="https://lottie.host/405c7e5e-4146-40d9-8cc6-aae02a60f7c7/75Cocyut3k.lottie"
           loop
           autoplay
           style={{
-            width: 320, // Set your preferred width
-            height: 320, // Set your preferred height
+            width: 320,
+            height: 320,
             maxWidth: "100%",
             maxHeight: "100%",
             display: "block"
@@ -809,7 +938,8 @@ It demonstrates a simple function definition and the use of the print statement.
         />
       </motion.div>
     </motion.div>
-    {/* Right Text and CTA */}
+
+    {/* Right: CTA Section */}
     <motion.div
       initial={{ opacity: 0, x: 60 }}
       animate={{ opacity: 1, x: 0 }}
@@ -824,7 +954,6 @@ It demonstrates a simple function definition and the use of the print statement.
       >
         Get Started Today for
         <br />
-        {/* Animated gradient for FREE */}
         <motion.span
           initial={{ backgroundPosition: "0% 50%" }}
           animate={{ backgroundPosition: "100% 50%" }}
@@ -847,7 +976,7 @@ It demonstrates a simple function definition and the use of the print statement.
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 1.2, duration: 0.7, type: "spring" }}
       >
-        <Link href="/explainer" passHref>
+        <Link href="/convert" passHref>
           <motion.button
             whileHover={{
               scale: 1.08,
@@ -868,8 +997,6 @@ It demonstrates a simple function definition and the use of the print statement.
     </motion.div>
   </div>
 </section>
-      
-     
     </div>
   );
 }

@@ -1,12 +1,104 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState } from "react";
 import { CodeEditor } from "@/components/CodeEditor";
 import { programmingLanguages, type ProgrammingLanguage } from "@/lib/utils";
 import { Loader2, Sparkles, Copy, Check, Globe, MessageSquare, ChevronDown, ChevronUp, FileUp } from "lucide-react";
 import { MarkdownRenderer } from "@/components/MarkdownRenderer";
 import Navbar from "@/components/Navbar";
 import { motion, AnimatePresence } from "framer-motion";
+
+// --- Animated unique gradient background with floating blobs and grid ---
+function AnimatedGradientBackground() {
+  return (
+    <>
+      <motion.svg
+        className="absolute inset-0 w-full h-full pointer-events-none -z-20"
+        width="100%"
+        height="100%"
+        viewBox="0 0 100 100"
+        preserveAspectRatio="none"
+        style={{ opacity: 0.14 }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 0.14 }}
+        transition={{ duration: 1.2 }}
+      >
+        {/* Grid lines with soft wiggle */}
+        {Array.from({ length: 11 }).map((_, i) => (
+          <motion.line
+            key={`v${i}`}
+            x1={`${i * 10}`}
+            y1="0"
+            x2={`${i * 10}`}
+            y2="100"
+            stroke="#90cdf4"
+            strokeWidth="0.3"
+            initial={{ opacity: 0.6, x: 0 }}
+            animate={{ opacity: [0.6, 1, 0.6], x: [0, 2 * (i % 2 === 0 ? 1 : -1), 0] }}
+            transition={{ repeat: Infinity, duration: 6 + i * 0.2, repeatType: "mirror" }}
+          />
+        ))}
+        {Array.from({ length: 11 }).map((_, i) => (
+          <motion.line
+            key={`h${i}`}
+            y1={`${i * 10}`}
+            x1="0"
+            y2={`${i * 10}`}
+            x2="100"
+            stroke="#90cdf4"
+            strokeWidth="0.3"
+            initial={{ opacity: 0.6, y: 0 }}
+            animate={{ opacity: [0.6, 1, 0.6], y: [0, 2 * (i % 2 === 0 ? 1 : -1), 0] }}
+            transition={{ repeat: Infinity, duration: 7.2 + i * 0.2, repeatType: "mirror" }}
+          />
+        ))}
+      </motion.svg>
+      {/* Subtle animated colored blobs */}
+      <motion.div
+        className="pointer-events-none absolute -z-10 left-[16%] top-[22%] w-[340px] h-[180px] rounded-full blur-3xl"
+        style={{
+          background: "radial-gradient(circle at 30% 70%,#c7f0ff 0%,#93cffc 80%)",
+          opacity: 0.10,
+        }}
+        animate={{ y: [0, 18, -18, 0], x: [0, 10, -10, 0], scale: [1, 1.05, 0.98, 1] }}
+        transition={{
+          duration: 12,
+          repeat: Infinity,
+          repeatType: "mirror",
+          ease: "easeInOut",
+        }}
+      />
+      <motion.div
+        className="pointer-events-none absolute -z-10 left-[55%] top-[65%] w-[400px] h-[190px] rounded-full blur-3xl"
+        style={{
+          background: "radial-gradient(circle at 50% 30%,#ffd6e3 0%,#c1b3f5 90%)",
+          opacity: 0.12,
+        }}
+        animate={{ y: [0, -22, 20, 0], x: [0, -12, 12, 0], scale: [1, 1.07, 0.96, 1] }}
+        transition={{
+          duration: 11,
+          repeat: Infinity,
+          repeatType: "mirror",
+          ease: "easeInOut",
+        }}
+      />
+      <motion.div
+        className="pointer-events-none absolute -z-10 left-1/2 top-[45%] w-[650px] h-[320px] -translate-x-1/2 -translate-y-1/2 rounded-full blur-2xl"
+        style={{
+          background: "radial-gradient(circle,#9eafff 10%,#e0d1fa 90%)",
+          opacity: 0.13,
+        }}
+        animate={{ scale: [0.98, 1.03, 0.96, 1], rotate: [0, 5, -5, 0] }}
+        transition={{
+          duration: 13,
+          repeat: Infinity,
+          repeatType: "mirror",
+          ease: "easeInOut",
+        }}
+      />
+    </>
+  );
+}
 
 // --- Language icon map ---
 const languageIcons: Record<string, React.ReactNode> = {
@@ -65,73 +157,6 @@ const languageIcons: Record<string, React.ReactNode> = {
     />
   ),
 };
-
-// --- Animated gradient background with subtle grid and blob ---
-function AnimatedGradientBackground() {
-  return (
-    <>
-      <motion.svg
-        className="absolute inset-0 w-full h-full pointer-events-none -z-20"
-        width="100%"
-        height="100%"
-        viewBox="0 0 100 100"
-        preserveAspectRatio="none"
-        style={{
-          opacity: 0.16,
-        }}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 0.16 }}
-        transition={{ duration: 1.2 }}
-      >
-        {Array.from({ length: 11 }).map((_, i) => (
-          <line
-            key={`v${i}`}
-            x1={`${i * 10}`}
-            y1="0"
-            x2={`${i * 10}`}
-            y2="100"
-            stroke="#90cdf4"
-            strokeWidth="0.3"
-          />
-        ))}
-        {Array.from({ length: 11 }).map((_, i) => (
-          <line
-            key={`h${i}`}
-            y1={`${i * 10}`}
-            x1="0"
-            y2={`${i * 10}`}
-            x2="100"
-            stroke="#90cdf4"
-            strokeWidth="0.3"
-          />
-        ))}
-        <style>
-          {`
-            @keyframes gridMove {
-              0% { transform: translateY(0); }
-              100% { transform: translateY(-10px); }
-            }
-          `}
-        </style>
-      </motion.svg>
-      <motion.div
-        className="pointer-events-none absolute -z-10 left-1/2 top-2/3 w-[700px] h-[350px] -translate-x-1/2 -translate-y-1/2 rounded-full blur-2xl"
-        style={{
-          background: "radial-gradient(circle,#9eafff 10%,#e0d1fa 90%)",
-          opacity: 0.13,
-        }}
-        initial={{ scale: 0.96, opacity: 0 }}
-        animate={{ scale: [0.96, 1.05, 0.98, 1], opacity: 0.13 }}
-        transition={{
-          duration: 12,
-          repeat: Infinity,
-          repeatType: "mirror",
-          ease: "easeInOut",
-        }}
-      />
-    </>
-  );
-}
 
 // Helper to try to detect language from filename extension
 function detectLanguageFromFilename(filename: string): ProgrammingLanguage | null {
@@ -224,10 +249,6 @@ export default function Home() {
 
   return (
     <main className="min-h-screen w-full max-w-screen-2xl mx-auto bg-gradient-to-br from-[#f9f5f0] to-[#e6dfd7] dark:from-gray-900 dark:to-gray-800 relative overflow-x-hidden">
-      <link
-        href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
-        rel="stylesheet"
-      />
       <AnimatedGradientBackground />
       <Navbar />
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 relative z-10">
